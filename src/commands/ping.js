@@ -1,11 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const mongoose = require('mongoose');
-const { Symbols, formatDuration } = require('../config/symbols');
+const { Symbols, Animated, toAesthetic, formatDuration } = require('../config/symbols');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
-        .setDescription('Inspect bot telemetry, latency, and host diagnostics.'),
+        .setDescription('Inspect bot telemetry, latency gauge, and host diagnostics.'),
 
     async execute(interaction) {
         const sent = await interaction.deferReply({ fetchReply: true });
@@ -14,40 +14,47 @@ module.exports = {
         const websocketPing = interaction.client.ws.ping;
         const uptime = formatDuration(Math.floor(process.uptime()));
         const memoryMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
-        const dbStatus = mongoose.connection.readyState === 1 ? 'Operational' : 'Degraded';
+        const dbStatus = mongoose.connection.readyState === 1 ? 'OPERATIONAL [CONNECTED]' : 'DEGRADED [OFFLINE]';
 
+        const titleAesthetic = toAesthetic('SYSTEM TELEMETRY');
         const embed = new EmbedBuilder()
-            .setColor(Symbols.colors.accent)
-            .setTitle(`[ SYSTEM // TELEMETRY DIAGNOSTICS ]`)
-            .setDescription(`${Symbols.divider}`)
+            .setColor(roundtripLatency < 150 ? Symbols.colors.accent : Symbols.colors.crimson)
+            .setTitle(`${Animated.ping} 『 ${titleAesthetic} 』`)
+            .setDescription(
+                `\`\`\`asciidoc\n` +
+                `= CORE ENGINE STATUS: NOMINAL =\n` +
+                `[ DISCORD API GATEWAY & DATABASE HEALTH ]\n` +
+                `\`\`\`\n` +
+                `${Symbols.borderDoubleH}`
+            )
             .addFields(
                 {
-                    name: `${Symbols.diamond} LATENCY`,
+                    name: `${Animated.fire} ❖〔 ＬＡＴＥＮＣＹ  ＧＡＵＧＥ 〕`,
                     value: [
-                        `${Symbols.tBranch} ${Symbols.bullet} Roundtrip: \`${roundtripLatency}ms\``,
-                        `${Symbols.cornerBottomLeft} ${Symbols.bullet} Gateway: \`${websocketPing}ms\``
+                        `   ${Symbols.treeBranch} ⌁ Gateway Ping: \` ${websocketPing}ms \``,
+                        `   ${Symbols.treeEnd} ⟡ Roundtrip: \` ${roundtripLatency}ms \``
                     ].join('\n'),
-                    inline: true
+                    inline: false
                 },
                 {
-                    name: `${Symbols.diamond} RUNTIME`,
+                    name: `${Animated.gem} ❖〔 ＲＵＮＴＩＭＥ  ＭＥＴＲＩＣＳ 〕`,
                     value: [
-                        `${Symbols.tBranch} ${Symbols.bullet} Uptime: \`${uptime}\``,
-                        `${Symbols.cornerBottomLeft} ${Symbols.bullet} Memory: \`${memoryMB} MB\``
+                        `   ${Symbols.treeBranch} ⌁ System Uptime: \` ${uptime} \``,
+                        `   ${Symbols.treeEnd} ⟡ Memory Footprint: \` ${memoryMB} MB \``
                     ].join('\n'),
-                    inline: true
+                    inline: false
                 },
                 {
-                    name: `${Symbols.diamond} INFRASTRUCTURE`,
+                    name: `${Animated.shield} ❖〔 ＩＮＦＲＡＳＴＲＵＣＴＵＲＥ 〕`,
                     value: [
-                        `${Symbols.tBranch} ${Symbols.bullet} Database: \`${dbStatus}\``,
-                        `${Symbols.cornerBottomLeft} ${Symbols.bullet} Cluster: \`Render Web Service\``
+                        `   ${Symbols.treeBranch} ⌁ Database Cluster: \` ${dbStatus} \``,
+                        `   ${Symbols.treeEnd} ⟡ Node Engine: \` ${process.version} \``
                     ].join('\n'),
                     inline: false
                 }
             )
             .setFooter({
-                text: `[ NODE ${process.version} // DISCORD.JS V14 ]`
+                text: `◈ KITKAT CORE ENGINE ◈ TELEMETRY LIVE`
             })
             .setTimestamp();
 

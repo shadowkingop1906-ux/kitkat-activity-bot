@@ -1,40 +1,46 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { Symbols } = require('../config/symbols');
+const { Symbols, Animated, toAesthetic } = require('../config/symbols');
+const { config } = require('../config/env');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('help')
-        .setDescription('Displays information about available commands and activity tracking.'),
+        .setDescription('Displays the crazy cyberpunk command interface manual.'),
 
     async execute(interaction) {
+        const titleAesthetic = toAesthetic('COMMAND MATRIX');
+        const prefix = config.prefix || 'k?';
+
         const embed = new EmbedBuilder()
             .setColor(Symbols.colors.accent)
-            .setTitle(`[ COMMAND MATRIX // MANUAL ]`)
+            .setTitle(`${Animated.starSpin} 『 ${titleAesthetic} 』`)
             .setDescription(
-                `A professional, minimal activity tracking engine.\n` +
-                `Tracks Voice Channel time and text chat frequency in real-time.\n` +
-                `${Symbols.divider}`
+                `\`\`\`asciidoc\n` +
+                `= KITKAT CORE PROTOCOL =\n` +
+                `[ DUAL INTERFACE: SLASH (/) & PREFIX (${prefix}) ]\n` +
+                `\`\`\`\n` +
+                `${Symbols.borderDoubleH}`
             )
             .addFields(
                 {
-                    name: `${Symbols.diamond} \`/stats [target]\``,
-                    value: `${Symbols.subBullet} View detailed telemetry, ranks, and voice status for yourself or another server member.`
+                    name: `${Animated.voiceWave} ❖〔 \`/stats\` ｜ \`${prefix}stats [@user]\` 〕`,
+                    value: `   ${Symbols.treeEnd} ⟡ Inspect member voice hours, chat count, activity ratio, and server rank.`
                 },
                 {
-                    name: `${Symbols.diamond} \`/leaderboard [type]\``,
-                    value: `${Symbols.subBullet} View top ranked voice and message leaders. Switch tabs with interactive buttons.`
+                    name: `${Animated.fire} ❖〔 \`/leaderboard\` ｜ \`${prefix}lb\` 〕`,
+                    value: `   ${Symbols.treeEnd} ⟡ Access top 10 rankings with interactive buttons for Voice, Chat, and Overview.`
                 },
                 {
-                    name: `${Symbols.diamond} \`/ping\``,
-                    value: `${Symbols.subBullet} Check system latency, host memory footprint, uptime, and database connectivity.`
+                    name: `${Animated.ping} ❖〔 \`/ping\` ｜ \`${prefix}ping\` 〕`,
+                    value: `   ${Symbols.treeEnd} ⟡ Realtime WebSocket latency gauge, host memory footprint, and database connectivity.`
                 },
                 {
-                    name: `${Symbols.diamond} \`/help\``,
-                    value: `${Symbols.subBullet} Display this command interface manual.`
+                    name: `${Animated.shield} ❖〔 \`/help\` ｜ \`${prefix}help\` 〕`,
+                    value: `   ${Symbols.treeEnd} ⟡ Display this crazy futuristic command manual.`
                 }
             )
             .setFooter({
-                text: `[ SYMBOL INTERFACE // CLEAN ARCHITECTURE ]`
+                text: `◈ KITKAT CORE ENGINE ◈ ARCHITECTURE BY GOOGLE AGY`
             })
             .setTimestamp();
 
