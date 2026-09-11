@@ -4,13 +4,15 @@ dotenv.config();
 
 const config = {
     discordToken: process.env.DISCORD_TOKEN || '',
-    clientId: process.env.CLIENT_ID || '',
+    clientId: process.env.CLIENT_ID || '1547556372629954580',
     guildId: process.env.GUILD_ID || '',
     mongoUri: process.env.MONGODB_URI || '',
     port: parseInt(process.env.PORT || '3000', 10),
+    ownerId: process.env.OWNER_ID || '1446040693725466687',
+    prefix: process.env.PREFIX || 'k?',
     trackDeafened: process.env.TRACK_DEAFENED_USERS === 'true',
     ignoreAfk: process.env.IGNORE_AFK_CHANNEL !== 'false',
-    nodeEnv: process.env.NODE_ENV || 'development'
+    nodeEnv: process.env.NODE_ENV || 'production'
 };
 
 function validateConfig() {
