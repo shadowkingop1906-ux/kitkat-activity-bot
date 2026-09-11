@@ -1,127 +1,101 @@
 /**
- * Ultra-Aesthetic Cyberpunk & Geometric Typography Engine
- * Combines ornate symbol glyphs, full-width aesthetic typography,
- * animated Discord accents, and dynamic block meters.
+ * Clean & Professional Typography & Component Utility Engine
+ * Inspired by modern Discord UI bots (Orbis / Sapphire).
  */
 
-// Animated Emojis (Discord nitro/bot animated assets)
-const Animated = {
-    crown: '<a:crown_gold:1042784807493083166>',
-    fire: '<a:fire_purple:1042784805798592532>',
-    sparkles: '<a:sparkles_cyan:1042784803525287956>',
-    voiceWave: '<a:voice_wave:1042784809284050965>',
-    starSpin: '<a:star_spin:1042784811028889600>',
-    gem: '<a:neon_gem:1042784812891168800>',
-    arrow: '<a:neon_arrow:1042784814833139743>',
-    ping: '<a:signal_pulse:1042784816766713876>',
-    shield: '<a:cyber_shield:1042784818788368414>'
+// Custom Small-Caps Font Dictionary for clean, non-cluttered headers
+const smallCapsMap = {
+    'a': 'ᴀ', 'b': 'ʙ', 'c': 'ᴄ', 'd': 'ᴅ', 'e': 'ᴇ', 'f': 'ꜰ', 'g': 'ɢ', 'h': 'ʜ', 'i': 'ɪ',
+    'j': 'ᴊ', 'k': 'ᴋ', 'l': 'ʟ', 'm': 'ᴍ', 'n': 'ɴ', 'o': 'ᴏ', 'p': 'ᴘ', 'q': 'ǫ', 'r': 'ʀ',
+    's': 'ꜱ', 't': 'ᴛ', 'u': 'ᴜ', 'v': 'ᴠ', 'w': 'ᴡ', 'x': 'x', 'y': 'ʏ', 'z': 'ᴢ',
+    'A': 'ᴀ', 'B': 'ʙ', 'C': 'ᴄ', 'D': 'ᴅ', 'E': 'ᴇ', 'F': 'ꜰ', 'G': 'ɢ', 'H': 'ʜ', 'I': 'ɪ',
+    'J': 'ᴊ', 'K': 'ᴋ', 'L': 'ʟ', 'M': 'ᴍ', 'N': 'ɴ', 'O': 'ᴏ', 'P': 'ᴘ', 'Q': 'ǫ', 'R': 'ʀ',
+    'S': 'ꜱ', 'T': 'ᴛ', 'U': 'ᴜ', 'V': 'ᴠ', 'W': 'ᴡ', 'X': 'x', 'Y': 'ʏ', 'Z': 'ᴢ',
+    '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7', '8': '8', '9': '9'
 };
 
+/**
+ * Converts text into sleek Discord Small Caps font
+ * e.g. "KitKat Protocol" -> "ᴋɪᴛᴋᴀᴛ ᴘʀᴏᴛᴏᴄᴏʟ"
+ */
+function toSmallCaps(text) {
+    if (!text) return '';
+    return text.split('').map(c => smallCapsMap[c] || c).join('');
+}
+
 const Symbols = {
-    // Cyber & Ornate Bullets
+    // Clean Bullet Points & Pointers
+    bullet: '•',
+    arrow: '›',
+    subArrow: '▸',
+    dot: '·',
+    pipe: '│',
+    dash: '─',
+    
+    // Status Badges
+    online: '🟢',
+    idle: '🟡',
+    offline: '⚪',
+    active: '⚡',
     crown: '👑',
-    spark: '⟡',
-    star: '✦',
-    subStar: '✧',
-    rhombus: '❖',
-    diamond: '◈',
-    diamondEmpty: '◇',
-    target: '⌖',
-    lightning: '⌁',
-    benzene: '⌬',
-    orbit: '✺',
-    nova: '✹',
-    leftBrace: '〔',
-    rightBrace: '〕',
-    leftBox: '【',
-    rightBox: '】',
-    leftAngle: '«',
-    rightAngle: '»',
-    pointer: '❯',
-    doublePointer: '»',
-    triangleRight: '►',
-    triangleDown: '▼',
+    verified: '🛡️',
+    star: '⭐',
+    sparkle: '✨',
+    gear: '⚙️',
+    info: 'ℹ️',
+    dev: '💻',
+    owner: '👑',
+    supporter: '🌟',
+    voice: '🎙️',
+    chat: '💬',
+    ping: '📡',
+    trash: '🗑️',
+    link: '↗',
 
-    // High-tech Frames & Borders
-    frameTop: '╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮',
-    frameBottom: '╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯',
-    borderDoubleH: '══════════════════════════════════════',
-    borderSingleH: '──────────────────────────────────────',
-    borderDashedH: '┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄',
-    vBar: '│',
-    tBranch: '├─',
-    cornerL: '└─',
-    cornerRoundL: '╰─',
-    treeBranch: '├──⌁',
-    treeEnd: '└──⟡',
-
-    // Progress Bar Glyphs
-    meterFill: '▰',
-    meterEmpty: '▱',
-    blockFill: '■',
-    blockEmpty: '□',
-
-    // Ornate Rank Badges with full-width numerals
+    // Ranks with clean medal icons
     ranks: {
-        1: `${Animated.crown} ❖【 ０１ 】`,
-        2: `⟢【 ０２ 】⟣`,
-        3: `⟣【 ０３ 】⟢`,
-        4: `⌖〔 ０４ 〕`,
-        5: `⌖〔 ０５ 〕`,
-        6: `⌖〔 ０６ 〕`,
-        7: `⌖〔 ０７ 〕`,
-        8: `⌖〔 ０８ 〕`,
-        9: `⌖〔 ０９ 〕`,
-        10: `⌖〔 １０ 〕`
+        1: '🥇',
+        2: '🥈',
+        3: '🥉',
+        4: '`#4`',
+        5: '`#5`',
+        6: '`#6`',
+        7: '`#7`',
+        8: '`#8`',
+        9: '`#9`',
+        10: '`#10`'
     },
 
-    // Sleek Color Themes
+    // Modern High-Contrast Hex Color Palette
     colors: {
-        primary: 0x0A0F1D,    // Midnight Cyber
-        accent: 0x38BDF8,     // Neon Stealth Cyan
-        gold: 0xFBBF24,       // Cyber Gold
-        purple: 0xA855F7,     // Neon Purple
-        emerald: 0x10B981,    // Emerald Pulse
-        crimson: 0xF43F5E,    // Crimson Red
-        slate: 0x1E293B       // Dark Slate
+        primary: 0x2B82D9,    // Orbis Sleek Blue
+        accent: 0x5865F2,     // Blurple
+        success: 0x57F287,    // Emerald Green
+        warning: 0xFEE75C,    // Amber Gold
+        danger: 0xED4245,     // Soft Red
+        dark: 0x2B2D31,       // Discord Embedded Dark
+        slate: 0x1E1F22       // Deep Background
     }
 };
 
 /**
- * Converts English text to full-width aesthetic Japanese-style typography
- * e.g. "LEADERBOARD" -> "ＬＥＡＤＥＲＢＯＡＲＤ"
- */
-function toAesthetic(text) {
-    if (!text) return '';
-    return text.split('').map(char => {
-        const code = char.charCodeAt(0);
-        if (code >= 65 && code <= 90) return String.fromCharCode(code + 65248); // Uppercase A-Z
-        if (code >= 97 && code <= 122) return String.fromCharCode(code + 65248); // Lowercase a-z
-        if (code >= 48 && code <= 57) return String.fromCharCode(code + 65248); // Digits 0-9
-        if (code === 32) return '  '; // Double space
-        return char;
-    }).join('');
-}
-
-/**
- * Creates an ultra-sleek cyberpunk progress meter
- * e.g. "▰▰▰▰▰▰▱▱▱▱  60%"
+ * Clean & minimal progress meter
+ * e.g. "▰▰▰▰▰▱▱▱▱▱ 50%"
  */
 function createSymbolProgressBar(value, max, size = 10) {
-    if (max <= 0) return `${Symbols.meterEmpty.repeat(size)}  0%`;
+    if (max <= 0) return `\`▱▱▱▱▱▱▱▱▱▱\` 0%`;
     const ratio = Math.min(Math.max(value / max, 0), 1);
     const filled = Math.round(ratio * size);
     const empty = size - filled;
     const percentage = Math.round(ratio * 100);
-    return `\`${Symbols.meterFill.repeat(filled)}${Symbols.meterEmpty.repeat(empty)}\` \`[ ${percentage}% ]\``;
+    return `\`${'▰'.repeat(filled)}${'▱'.repeat(empty)}\` \`${percentage}%\``;
 }
 
 /**
- * Formats duration with cyber styling
- * e.g. "12h 45m 20s"
+ * Human-readable duration formatter
  */
 function formatDuration(seconds) {
-    if (!seconds || seconds <= 0) return '00s';
+    if (!seconds || seconds <= 0) return '0s';
 
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
@@ -141,8 +115,9 @@ function formatDuration(seconds) {
 
 module.exports = {
     Symbols,
-    Animated,
-    toAesthetic,
+    toSmallCaps,
+    toAesthetic: toSmallCaps, // Backward-compat fallback
+    Animated: {},
     createSymbolProgressBar,
     formatDuration
 };

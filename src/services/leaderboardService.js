@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const UserActivity = require('../database/models/UserActivity');
-const { Symbols, Animated, toAesthetic, formatDuration, createSymbolProgressBar } = require('../config/symbols');
+const { Symbols, toSmallCaps, formatDuration, createSymbolProgressBar } = require('../config/symbols');
 const { activeVoiceSessions } = require('./activityService');
 
 /**
@@ -41,27 +41,22 @@ async function getMessageLeaderboard(guildId, limit = 10) {
 }
 
 /**
- * Generates crazy cyberpunk symbol-styled embed for Voice Leaderboard
+ * Generates sleek modern embed for Voice Leaderboard
  * @param {string} guildName
  * @param {Array} entries
  */
 function buildVoiceLeaderboardEmbed(guildName, entries) {
-    const titleAesthetic = toAesthetic('VOICE LEADERBOARD');
     const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.accent)
-        .setTitle(`${Animated.voiceWave} 『 ${titleAesthetic} 』`)
-        .setDescription(
-            `\`\`\`asciidoc\n` +
-            `= SERVER: ${guildName.toUpperCase()} =\n` +
-            `[ PROTOCOL // REALTIME VOICE TELEMETRY ]\n` +
-            `\`\`\`\n` +
-            `${Symbols.borderDoubleH}`
-        );
+        .setColor(Symbols.colors.primary)
+        .setAuthor({
+            name: `${toSmallCaps('Voice Leaderboard')} • ${guildName}`
+        })
+        .setDescription(`### 🎙️ ${toSmallCaps('Top Voice Members')}\nReal-time recorded voice activity.`);
 
     if (!entries || entries.length === 0) {
         embed.addFields({
-            name: `${Symbols.rhombus} STATUS TELEMETRY`,
-            value: `\`\`\`css\n[ No active voice sessions recorded yet. ]\n\`\`\``
+            name: 'Status',
+            value: 'No voice activity recorded yet for this server.'
         });
         return embed;
     }
@@ -70,22 +65,20 @@ function buildVoiceLeaderboardEmbed(guildName, entries) {
 
     const lines = entries.map((item, index) => {
         const rank = index + 1;
-        const badge = Symbols.ranks[rank] || `⌖〔 ${rank < 10 ? '０' + rank : rank} 〕`;
+        const badge = Symbols.ranks[rank] || `\`#${rank}\``;
         const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
-        const bar = createSymbolProgressBar(item.currentTotal || item.voiceTimeSeconds, maxTime, 8);
+        const bar = createSymbolProgressBar(item.currentTotal || item.voiceTimeSeconds, maxTime, 6);
 
-        return `${badge} <@${item.userId}>\n` +
-               `   ${Symbols.treeBranch} ⌁ Voice Time: \` ${timeStr} \`\n` +
-               `   ${Symbols.treeEnd} ⟡ Activity Ratio: ${bar}`;
+        return `${badge} <@${item.userId}>\n› Time: \`${timeStr}\` • ${bar}`;
     });
 
     embed.addFields({
-        name: `${Animated.fire} ❖【 ＥＬＩＴＥ  ＶＯＩＣＥ  ＴＡＬＫＥＲＳ 】`,
+        name: '🏆 Rankings',
         value: lines.join('\n\n')
     });
 
     embed.setFooter({
-        text: `◈ KITKAT CORE ENGINE ◈ AUTO-SYNCHRONIZED METRICS`
+        text: `${toSmallCaps('KitKat Telemetry')} • Auto-Synchronized`
     });
     embed.setTimestamp();
 
@@ -93,27 +86,22 @@ function buildVoiceLeaderboardEmbed(guildName, entries) {
 }
 
 /**
- * Generates crazy cyberpunk symbol-styled embed for Message Leaderboard
+ * Generates sleek modern embed for Message Leaderboard
  * @param {string} guildName
  * @param {Array} entries
  */
 function buildMessageLeaderboardEmbed(guildName, entries) {
-    const titleAesthetic = toAesthetic('CHAT LEADERBOARD');
     const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.purple)
-        .setTitle(`${Animated.sparkles} 『 ${titleAesthetic} 』`)
-        .setDescription(
-            `\`\`\`asciidoc\n` +
-            `= SERVER: ${guildName.toUpperCase()} =\n` +
-            `[ PROTOCOL // REALTIME TEXT TELEMETRY ]\n` +
-            `\`\`\`\n` +
-            `${Symbols.borderDoubleH}`
-        );
+        .setColor(Symbols.colors.accent)
+        .setAuthor({
+            name: `${toSmallCaps('Chat Leaderboard')} • ${guildName}`
+        })
+        .setDescription(`### 💬 ${toSmallCaps('Top Chat Members')}\nReal-time recorded message volume.`);
 
     if (!entries || entries.length === 0) {
         embed.addFields({
-            name: `${Symbols.rhombus} STATUS TELEMETRY`,
-            value: `\`\`\`css\n[ No text activity recorded yet. ]\n\`\`\``
+            name: 'Status',
+            value: 'No text messages recorded yet for this server.'
         });
         return embed;
     }
@@ -122,21 +110,19 @@ function buildMessageLeaderboardEmbed(guildName, entries) {
 
     const lines = entries.map((item, index) => {
         const rank = index + 1;
-        const badge = Symbols.ranks[rank] || `⌖〔 ${rank < 10 ? '０' + rank : rank} 〕`;
-        const bar = createSymbolProgressBar(item.messageCount, maxCount, 8);
+        const badge = Symbols.ranks[rank] || `\`#${rank}\``;
+        const bar = createSymbolProgressBar(item.messageCount, maxCount, 6);
 
-        return `${badge} <@${item.userId}>\n` +
-               `   ${Symbols.treeBranch} ✦ Total Messages: \` ${item.messageCount.toLocaleString()} msgs \`\n` +
-               `   ${Symbols.treeEnd} ⟡ Activity Ratio: ${bar}`;
+        return `${badge} <@${item.userId}>\n› Messages: \`${item.messageCount.toLocaleString()}\` • ${bar}`;
     });
 
     embed.addFields({
-        name: `${Animated.gem} ❖【 ＥＬＩＴＥ  ＣＨＡＴＴＥＲＳ 】`,
+        name: '🏆 Rankings',
         value: lines.join('\n\n')
     });
 
     embed.setFooter({
-        text: `◈ KITKAT CORE ENGINE ◈ AUTO-SYNCHRONIZED METRICS`
+        text: `${toSmallCaps('KitKat Telemetry')} • Auto-Synchronized`
     });
     embed.setTimestamp();
 
@@ -150,52 +136,47 @@ function buildMessageLeaderboardEmbed(guildName, entries) {
  * @param {Array} messageEntries
  */
 function buildOverviewLeaderboardEmbed(guildName, voiceEntries, messageEntries) {
-    const titleAesthetic = toAesthetic('SERVER TELEMETRY');
     const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.gold)
-        .setTitle(`${Animated.crown} 『 ${titleAesthetic} 』`)
-        .setDescription(
-            `\`\`\`asciidoc\n` +
-            `= SERVER: ${guildName.toUpperCase()} =\n` +
-            `[ DUAL MATRIX // VOICE & CHAT OVERVIEW ]\n` +
-            `\`\`\`\n` +
-            `${Symbols.borderDoubleH}`
-        );
+        .setColor(Symbols.colors.primary)
+        .setAuthor({
+            name: `${toSmallCaps('Server Overview')} • ${guildName}`
+        })
+        .setDescription(`### 🌟 ${toSmallCaps('Activity Overview')}\nTop performers in voice and text channels.`);
 
     // Top 3 voice
-    let voiceText = '```fix\n[ No voice activity recorded ]\n```';
-    if (voiceEntries.length > 0) {
+    let voiceText = '*No voice activity recorded yet.*';
+    if (voiceEntries && voiceEntries.length > 0) {
         voiceText = voiceEntries.slice(0, 3).map((item, idx) => {
             const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
             const badge = Symbols.ranks[idx + 1];
-            return `${badge} <@${item.userId}>\n   ${Symbols.treeEnd} \` ${timeStr} \``;
+            return `${badge} <@${item.userId}> — \`${timeStr}\``;
         }).join('\n');
     }
 
     // Top 3 messages
-    let messageText = '```fix\n[ No message activity recorded ]\n```';
-    if (messageEntries.length > 0) {
+    let messageText = '*No message activity recorded yet.*';
+    if (messageEntries && messageEntries.length > 0) {
         messageText = messageEntries.slice(0, 3).map((item, idx) => {
             const badge = Symbols.ranks[idx + 1];
-            return `${badge} <@${item.userId}>\n   ${Symbols.treeEnd} \` ${item.messageCount.toLocaleString()} msgs \``;
+            return `${badge} <@${item.userId}> — \`${item.messageCount.toLocaleString()} msgs\``;
         }).join('\n');
     }
 
     embed.addFields(
         {
-            name: `${Animated.voiceWave} ❖〔 ＴＯＰ  ＶＯＩＣＥ  ＯＰＥＲＡＴＯＲＳ 〕`,
+            name: '🎙️ Voice Leaders',
             value: voiceText,
-            inline: false
+            inline: true
         },
         {
-            name: `${Animated.sparkles} ❖〔 ＴＯＰ  ＣＨＡＴ  ＯＰＥＲＡＴＯＲＳ 〕`,
+            name: '💬 Chat Leaders',
             value: messageText,
-            inline: false
+            inline: true
         }
     );
 
     embed.setFooter({
-        text: `◈ SWITCH TABS BELOW FOR TOP 10 RANKINGS ◈`
+        text: `${toSmallCaps('KitKat Telemetry')} • Switch tabs below`
     });
     embed.setTimestamp();
 
@@ -203,23 +184,30 @@ function buildOverviewLeaderboardEmbed(guildName, voiceEntries, messageEntries) 
 }
 
 /**
- * Creates interactive button row to switch between tabs
+ * Creates interactive button row to switch between tabs with delete button
  * @param {string} activeCategory 'voice' | 'messages' | 'overview'
  */
 function createLeaderboardButtons(activeCategory = 'overview') {
     return new ActionRowBuilder().addComponents(
         new ButtonBuilder()
+            .setCustomId('lb_overview')
+            .setLabel('Overview')
+            .setEmoji('🏆')
+            .setStyle(activeCategory === 'overview' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+        new ButtonBuilder()
             .setCustomId('lb_voice')
-            .setLabel('〔 ◈ VOICE 〕')
+            .setLabel('Voice')
+            .setEmoji('🎙️')
             .setStyle(activeCategory === 'voice' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setCustomId('lb_messages')
-            .setLabel('〔 ◈ CHAT 〕')
+            .setLabel('Chat')
+            .setEmoji('💬')
             .setStyle(activeCategory === 'messages' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
-            .setCustomId('lb_overview')
-            .setLabel('〔 ◈ OVERVIEW 〕')
-            .setStyle(activeCategory === 'overview' ? ButtonStyle.Primary : ButtonStyle.Secondary)
+            .setCustomId('panel_btn_delete')
+            .setEmoji('🗑️')
+            .setStyle(ButtonStyle.Danger)
     );
 }
 

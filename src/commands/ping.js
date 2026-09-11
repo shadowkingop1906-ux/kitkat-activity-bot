@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const mongoose = require('mongoose');
-const { Symbols, Animated, toAesthetic, formatDuration } = require('../config/symbols');
+const { Symbols, toSmallCaps, formatDuration } = require('../config/symbols');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -14,50 +14,40 @@ module.exports = {
         const websocketPing = interaction.client.ws.ping;
         const uptime = formatDuration(Math.floor(process.uptime()));
         const memoryMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
-        const dbStatus = mongoose.connection.readyState === 1 ? 'OPERATIONAL [CONNECTED]' : 'DEGRADED [OFFLINE]';
+        const isDbOnline = mongoose.connection.readyState === 1;
 
-        const titleAesthetic = toAesthetic('SYSTEM TELEMETRY');
         const embed = new EmbedBuilder()
-            .setColor(roundtripLatency < 150 ? Symbols.colors.accent : Symbols.colors.crimson)
-            .setTitle(`${Animated.ping} 『 ${titleAesthetic} 』`)
+            .setColor(roundtripLatency < 200 ? Symbols.colors.primary : Symbols.colors.danger)
+            .setAuthor({
+                name: `${toSmallCaps('KitKat')} • ${toSmallCaps('System Telemetry')}`,
+                iconURL: interaction.client.user.displayAvatarURL()
+            })
             .setDescription(
-                `\`\`\`asciidoc\n` +
-                `= CORE ENGINE STATUS: NOMINAL =\n` +
-                `[ DISCORD API GATEWAY & DATABASE HEALTH ]\n` +
-                `\`\`\`\n` +
-                `${Symbols.borderDoubleH}`
-            )
-            .addFields(
-                {
-                    name: `${Animated.fire} ❖〔 ＬＡＴＥＮＣＹ  ＧＡＵＧＥ 〕`,
-                    value: [
-                        `   ${Symbols.treeBranch} ⌁ Gateway Ping: \` ${websocketPing}ms \``,
-                        `   ${Symbols.treeEnd} ⟡ Roundtrip: \` ${roundtripLatency}ms \``
-                    ].join('\n'),
-                    inline: false
-                },
-                {
-                    name: `${Animated.gem} ❖〔 ＲＵＮＴＩＭＥ  ＭＥＴＲＩＣＳ 〕`,
-                    value: [
-                        `   ${Symbols.treeBranch} ⌁ System Uptime: \` ${uptime} \``,
-                        `   ${Symbols.treeEnd} ⟡ Memory Footprint: \` ${memoryMB} MB \``
-                    ].join('\n'),
-                    inline: false
-                },
-                {
-                    name: `${Animated.shield} ❖〔 ＩＮＦＲＡＳＴＲＵＣＴＵＲＥ 〕`,
-                    value: [
-                        `   ${Symbols.treeBranch} ⌁ Database Cluster: \` ${dbStatus} \``,
-                        `   ${Symbols.treeEnd} ⟡ Node Engine: \` ${process.version} \``
-                    ].join('\n'),
-                    inline: false
-                }
+                `### 📡 ${toSmallCaps('Latency & Performance')}\n\n` +
+                `• **Gateway Ping:** \`${websocketPing >= 0 ? websocketPing + 'ms' : 'Syncing...'}\`\n` +
+                `• **Roundtrip:** \`${roundtripLatency}ms\`\n` +
+                `• **Host Uptime:** \`${uptime}\`\n` +
+                `• **Memory Usage:** \`${memoryMB} MB\`\n` +
+                `• **Database Cluster:** ${isDbOnline ? '🟢 `Operational`' : '🔴 `Degraded`'}\n` +
+                `• **Node.js Engine:** \`${process.version}\``
             )
             .setFooter({
-                text: `◈ KITKAT CORE ENGINE ◈ TELEMETRY LIVE`
+                text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
             })
             .setTimestamp();
 
-        await interaction.editReply({ embeds: [embed] });
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('panel_btn_system')
+                .setLabel('System Details')
+                .setEmoji('ℹ️')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('panel_btn_delete')
+                .setEmoji('🗑️')
+                .setStyle(ButtonStyle.Danger)
+        );
+
+        await interaction.editReply({ embeds: [embed], components: [row] });
     }
 };

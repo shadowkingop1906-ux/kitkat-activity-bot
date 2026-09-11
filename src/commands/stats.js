@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getUserStats } = require('../services/activityService');
-const { Symbols, Animated, toAesthetic, formatDuration, createSymbolProgressBar } = require('../config/symbols');
+const { Symbols, toSmallCaps, formatDuration } = require('../config/symbols');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,65 +22,47 @@ module.exports = {
         const stats = await getUserStats(interaction.guild.id, targetUser.id);
         const voiceTimeFormatted = formatDuration(stats.totalVoiceSeconds);
 
-        const titleAesthetic = toAesthetic('OPERATOR DOSSIER');
-        const statusBadge = stats.isCurrentlyInVoice
-            ? `\`\`\`diff\n+ [ ⟡ LIVE // CONNECTED IN VOICE ]\n\`\`\``
-            : `\`\`\`yaml\n[ ◈ IDLE // VOICE DISCONNECTED ]\n\`\`\``;
+        const vcRankBadge = Symbols.ranks[stats.voiceRank] || `\`#${stats.voiceRank}\``;
+        const msgRankBadge = Symbols.ranks[stats.messageRank] || `\`#${stats.messageRank}\``;
 
         const embed = new EmbedBuilder()
-            .setColor(stats.isCurrentlyInVoice ? Symbols.colors.emerald : Symbols.colors.accent)
-            .setTitle(`${Animated.starSpin} 『 ${titleAesthetic} 』`)
+            .setColor(stats.isCurrentlyInVoice ? Symbols.colors.success : Symbols.colors.primary)
+            .setAuthor({
+                name: `${targetUser.username} • ${toSmallCaps('Activity Dossier')}`,
+                iconURL: targetUser.displayAvatarURL({ dynamic: true })
+            })
             .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
             .setDescription(
-                `\`\`\`asciidoc\n` +
-                `= USER: ${targetUser.username.toUpperCase()} =\n` +
-                `ID :: ${targetUser.id}\n` +
-                `\`\`\`\n` +
-                `${statusBadge}` +
-                `${Symbols.borderDoubleH}`
-            );
+                `### ${toSmallCaps('Member Telemetry')}\n` +
+                `**User:** <@${targetUser.id}> • \`${targetUser.id}\`\n` +
+                `**Status:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting in Voice`' : '⚪ `Voice Disconnected`'}\n\n` +
+                `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
+                `• **Time Spent:** \`${voiceTimeFormatted}\`\n` +
+                `• **Server Rank:** ${vcRankBadge}\n\n` +
+                `💬 **${toSmallCaps('Chat Metrics')}**\n` +
+                `• **Messages Sent:** \`${stats.messageCount.toLocaleString()} msgs\`\n` +
+                `• **Server Rank:** ${msgRankBadge}\n\n` +
+                `📅 **${toSmallCaps('Timeline')}**\n` +
+                `• **Joined Guild:** ${member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown'}\n` +
+                `• **Registered:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
+            )
+            .setFooter({
+                text: `${toSmallCaps('KitKat Core Engine')} • ${interaction.guild.name}`
+            })
+            .setTimestamp();
 
-        // Voice Section
-        const vcRankBadge = Symbols.ranks[stats.voiceRank] || `⌖〔 ${stats.voiceRank} 〕`;
-        embed.addFields({
-            name: `${Animated.voiceWave} ❖【 ＶＯＩＣＥ  ＭＥＴＲＩＣＳ 】`,
-            value: [
-                `   ${Symbols.treeBranch} ⌁ Recorded Time: \` ${voiceTimeFormatted} \``,
-                `   ${Symbols.treeBranch} ⌁ Server Rank: ${vcRankBadge}`,
-                `   ${Symbols.treeEnd} ⟡ Voice State: \`${stats.isCurrentlyInVoice ? 'TRANSMITTING' : 'STANDBY'}\``
-            ].join('\n'),
-            inline: false
-        });
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('lb_overview')
+                .setLabel('Leaderboard')
+                .setEmoji('🏆')
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId('panel_btn_delete')
+                .setEmoji('🗑️')
+                .setStyle(ButtonStyle.Danger)
+        );
 
-        // Message Section
-        const msgRankBadge = Symbols.ranks[stats.messageRank] || `⌖〔 ${stats.messageRank} 〕`;
-        embed.addFields({
-            name: `${Animated.sparkles} ❖【 ＣＨＡＴ  ＭＥＴＲＩＣＳ 】`,
-            value: [
-                `   ${Symbols.treeBranch} ✦ Total Messages: \` ${stats.messageCount.toLocaleString()} msgs \``,
-                `   ${Symbols.treeEnd} ⌁ Server Rank: ${msgRankBadge}`
-            ].join('\n'),
-            inline: false
-        });
-
-        // Timeline Info
-        const joinedDiscord = `<t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`;
-        const joinedServer = member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown';
-
-        embed.addFields({
-            name: `${Animated.shield} ❖【 ＴＥＬＥＭＥＴＲＹ  ＴＩＭＥＬＩＮＥ 】`,
-            value: [
-                `   ${Symbols.treeBranch} ⌁ Guild Joined: ${joinedServer}`,
-                `   ${Symbols.treeEnd} ⟡ Account Created: ${joinedDiscord}`
-            ].join('\n'),
-            inline: false
-        });
-
-        embed.setFooter({
-            text: `◈ KITKAT CORE ENGINE ◈ GUILD: ${interaction.guild.name.toUpperCase()}`
-        });
-        embed.setTimestamp();
-
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [embed], components: [row] });
     }
 };

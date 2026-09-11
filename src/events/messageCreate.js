@@ -1,4 +1,4 @@
-const { Events, EmbedBuilder } = require('discord.js');
+const { Events, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { config } = require('../config/env');
 const { recordMessage, getUserStats } = require('../services/activityService');
 const {
@@ -9,7 +9,8 @@ const {
     buildOverviewLeaderboardEmbed,
     createLeaderboardButtons
 } = require('../services/leaderboardService');
-const { Symbols, Animated, toAesthetic, formatDuration } = require('../config/symbols');
+const { Symbols, toSmallCaps, formatDuration } = require('../config/symbols');
+const { buildPanel } = require('../utils/panelBuilder');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -36,34 +37,40 @@ module.exports = {
             const roundtrip = Date.now() - message.createdTimestamp;
             const wsPing = message.client.ws.ping;
             const uptime = formatDuration(Math.floor(process.uptime()));
-            const titleAesthetic = toAesthetic('SYSTEM TELEMETRY');
+            const memoryMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
 
             const embed = new EmbedBuilder()
-                .setColor(Symbols.colors.accent)
-                .setTitle(`${Animated.ping} 『 ${titleAesthetic} 』`)
+                .setColor(roundtrip < 200 ? Symbols.colors.primary : Symbols.colors.danger)
+                .setAuthor({
+                    name: `${toSmallCaps('KitKat')} • ${toSmallCaps('System Telemetry')}`,
+                    iconURL: message.client.user.displayAvatarURL()
+                })
                 .setDescription(
-                    `\`\`\`asciidoc\n` +
-                    `= SYSTEM TELEMETRY =\n` +
-                    `[ GATEWAY LATENCY & HOST RUNTIME ]\n` +
-                    `\`\`\`\n` +
-                    `${Symbols.borderDoubleH}`
+                    `### 📡 ${toSmallCaps('Latency & Performance')}\n\n` +
+                    `• **Gateway Ping:** \`${wsPing >= 0 ? wsPing + 'ms' : 'Syncing...'}\`\n` +
+                    `• **Roundtrip:** \`${roundtrip}ms\`\n` +
+                    `• **Host Uptime:** \`${uptime}\`\n` +
+                    `• **Memory Usage:** \`${memoryMB} MB\`\n` +
+                    `• **Prefix:** \`${prefix}\``
                 )
-                .addFields(
-                    {
-                        name: `${Animated.fire} ❖〔 ＬＡＴＥＮＣＹ 〕`,
-                        value: `   ${Symbols.treeBranch} ⌁ Roundtrip: \` ${roundtrip}ms \`\n   ${Symbols.treeEnd} ⟡ Gateway: \` ${wsPing}ms \``,
-                        inline: false
-                    },
-                    {
-                        name: `${Animated.shield} ❖〔 ＲＵＮＴＩＭＥ 〕`,
-                        value: `   ${Symbols.treeBranch} ⌁ Uptime: \` ${uptime} \`\n   ${Symbols.treeEnd} ⟡ Prefix: \` ${prefix} \``,
-                        inline: false
-                    }
-                )
-                .setFooter({ text: `◈ KITKAT CORE ◈ REQUESTED BY ${message.author.username.toUpperCase()}` })
+                .setFooter({
+                    text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
+                })
                 .setTimestamp();
 
-            return message.reply({ embeds: [embed] }).catch(() => {});
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('panel_btn_system')
+                    .setLabel('System Details')
+                    .setEmoji('ℹ️')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('panel_btn_delete')
+                    .setEmoji('🗑️')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            return message.reply({ embeds: [embed], components: [row] }).catch(() => {});
         }
 
         // Command: k?stats [@user]
@@ -75,47 +82,49 @@ module.exports = {
             const targetUser = targetMember.user;
             const stats = await getUserStats(message.guild.id, targetUser.id);
             const voiceTimeFormatted = formatDuration(stats.totalVoiceSeconds);
-            const titleAesthetic = toAesthetic('OPERATOR DOSSIER');
 
-            const statusBadge = stats.isCurrentlyInVoice
-                ? `\`\`\`diff\n+ [ ⟡ LIVE // CONNECTED IN VOICE ]\n\`\`\``
-                : `\`\`\`yaml\n[ ◈ IDLE // VOICE DISCONNECTED ]\n\`\`\``;
+            const vcRankBadge = Symbols.ranks[stats.voiceRank] || `\`#${stats.voiceRank}\``;
+            const msgRankBadge = Symbols.ranks[stats.messageRank] || `\`#${stats.messageRank}\``;
 
             const embed = new EmbedBuilder()
-                .setColor(stats.isCurrentlyInVoice ? Symbols.colors.emerald : Symbols.colors.accent)
-                .setTitle(`${Animated.starSpin} 『 ${titleAesthetic} 』`)
+                .setColor(stats.isCurrentlyInVoice ? Symbols.colors.success : Symbols.colors.primary)
+                .setAuthor({
+                    name: `${targetUser.username} • ${toSmallCaps('Activity Dossier')}`,
+                    iconURL: targetUser.displayAvatarURL({ dynamic: true })
+                })
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
                 .setDescription(
-                    `\`\`\`asciidoc\n` +
-                    `= USER: ${targetUser.username.toUpperCase()} =\n` +
-                    `ID :: ${targetUser.id}\n` +
-                    `\`\`\`\n` +
-                    `${statusBadge}` +
-                    `${Symbols.borderDoubleH}`
+                    `### ${toSmallCaps('Member Telemetry')}\n` +
+                    `**User:** <@${targetUser.id}> • \`${targetUser.id}\`\n` +
+                    `**Status:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting in Voice`' : '⚪ `Voice Disconnected`'}\n\n` +
+                    `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
+                    `• **Time Spent:** \`${voiceTimeFormatted}\`\n` +
+                    `• **Server Rank:** ${vcRankBadge}\n\n` +
+                    `💬 **${toSmallCaps('Chat Metrics')}**\n` +
+                    `• **Messages Sent:** \`${stats.messageCount.toLocaleString()} msgs\`\n` +
+                    `• **Server Rank:** ${msgRankBadge}\n\n` +
+                    `📅 **${toSmallCaps('Timeline')}**\n` +
+                    `• **Joined Guild:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:R>\n` +
+                    `• **Registered:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
                 )
-                .addFields(
-                    {
-                        name: `${Animated.voiceWave} ❖【 ＶＯＩＣＥ  ＭＥＴＲＩＣＳ 】`,
-                        value: [
-                            `   ${Symbols.treeBranch} ⌁ Recorded Time: \` ${voiceTimeFormatted} \``,
-                            `   ${Symbols.treeBranch} ⌁ Server Rank: ${Symbols.ranks[stats.voiceRank] || `⌖〔 ${stats.voiceRank} 〕`}`,
-                            `   ${Symbols.treeEnd} ⟡ Voice State: \`${stats.isCurrentlyInVoice ? 'TRANSMITTING' : 'STANDBY'}\``
-                        ].join('\n'),
-                        inline: false
-                    },
-                    {
-                        name: `${Animated.sparkles} ❖【 ＣＨＡＴ  ＭＥＴＲＩＣＳ 】`,
-                        value: [
-                            `   ${Symbols.treeBranch} ✦ Total Messages: \` ${stats.messageCount.toLocaleString()} msgs \``,
-                            `   ${Symbols.treeEnd} ⌁ Server Rank: ${Symbols.ranks[stats.messageRank] || `⌖〔 ${stats.messageRank} 〕`}`
-                        ].join('\n'),
-                        inline: false
-                    }
-                )
-                .setFooter({ text: `◈ OWNER: ${config.ownerId} ◈ GUILD: ${message.guild.name.toUpperCase()}` })
+                .setFooter({
+                    text: `${toSmallCaps('KitKat Core Engine')} • ${message.guild.name}`
+                })
                 .setTimestamp();
 
-            return message.reply({ embeds: [embed] }).catch(() => {});
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('lb_overview')
+                    .setLabel('Leaderboard')
+                    .setEmoji('🏆')
+                    .setStyle(ButtonStyle.Primary),
+                new ButtonBuilder()
+                    .setCustomId('panel_btn_delete')
+                    .setEmoji('🗑️')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            return message.reply({ embeds: [embed], components: [row] }).catch(() => {});
         }
 
         // Command: k?leaderboard or k?lb [voice|messages|overview]
@@ -148,39 +157,8 @@ module.exports = {
 
         // Command: k?help
         if (commandName === 'help') {
-            const titleAesthetic = toAesthetic('COMMAND MATRIX');
-            const embed = new EmbedBuilder()
-                .setColor(Symbols.colors.accent)
-                .setTitle(`${Animated.starSpin} 『 ${titleAesthetic} 』`)
-                .setDescription(
-                    `\`\`\`asciidoc\n` +
-                    `= KITKAT CORE PROTOCOL =\n` +
-                    `[ PREFIX: ${prefix} ｜ OWNER: ${config.ownerId} ]\n` +
-                    `\`\`\`\n` +
-                    `${Symbols.borderDoubleH}`
-                )
-                .addFields(
-                    {
-                        name: `${Animated.voiceWave} ❖〔 \`${prefix}stats [@user]\` 〕`,
-                        value: `   ${Symbols.treeEnd} ⟡ View voice time, message count, and server rank.`
-                    },
-                    {
-                        name: `${Animated.fire} ❖〔 \`${prefix}lb\` ｜ \`${prefix}leaderboard\` 〕`,
-                        value: `   ${Symbols.treeEnd} ⟡ Display server rankings with interactive tab buttons.`
-                    },
-                    {
-                        name: `${Animated.ping} ❖〔 \`${prefix}ping\` 〕`,
-                        value: `   ${Symbols.treeEnd} ⟡ Inspect bot latency, uptime, and database connectivity.`
-                    },
-                    {
-                        name: `${Animated.shield} ❖〔 Slash Commands 〕`,
-                        value: `   ${Symbols.treeEnd} ⟡ Sabhi commands slash mein bhi available hain: \`/stats\`, \`/leaderboard\`, \`/ping\`, \`/help\`.`
-                    }
-                )
-                .setFooter({ text: `◈ KITKAT CORE ENGINE ◈ PRO EDITION` })
-                .setTimestamp();
-
-            return message.reply({ embeds: [embed] }).catch(() => {});
+            const panelPayload = await buildPanel('home', message.client, message);
+            return message.reply(panelPayload).catch(() => {});
         }
     }
 };
