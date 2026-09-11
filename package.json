@@ -2,10 +2,11 @@
   "name": "discord-activity-bot",
   "version": "1.0.0",
   "description": "Professional Clean Architecture Discord Bot for tracking voice channel time, message counts, and symbol-styled leaderboards on Render & MongoDB.",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js"
+    "start": "node index.js",
+    "dev": "node index.js",
+    "build": "echo 'Build complete'"
   },
   "keywords": [
     "discord-bot",
