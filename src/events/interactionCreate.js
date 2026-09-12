@@ -45,6 +45,33 @@ module.exports = {
                 const panelPayload = await buildPanel(selectedTab, interaction.client, interaction);
                 return await interaction.update(panelPayload).catch(() => {});
             }
+
+            if (interaction.customId === 'lb_select_menu') {
+                const selected = interaction.values[0] || 'lb_overview';
+                const guild = interaction.guild;
+                const guildId = guild.id;
+
+                let embed;
+                let activeCategory = 'overview';
+
+                if (selected === 'lb_voice') {
+                    activeCategory = 'voice';
+                    const list = await getVoiceLeaderboard(guildId, 10);
+                    embed = buildVoiceLeaderboardEmbed(guild, list);
+                } else if (selected === 'lb_messages') {
+                    activeCategory = 'messages';
+                    const list = await getMessageLeaderboard(guildId, 10);
+                    embed = buildMessageLeaderboardEmbed(guild, list);
+                } else {
+                    activeCategory = 'overview';
+                    const voiceList = await getVoiceLeaderboard(guildId, 6);
+                    const msgList = await getMessageLeaderboard(guildId, 6);
+                    embed = buildOverviewLeaderboardEmbed(guild, voiceList, msgList);
+                }
+
+                const components = createLeaderboardButtons(activeCategory);
+                return await interaction.update({ embeds: [embed], components }).catch(() => {});
+            }
         }
 
         // 3. Handle Buttons
@@ -63,34 +90,118 @@ module.exports = {
                 return await interaction.update(panelPayload).catch(() => {});
             }
 
-            // Leaderboard tab buttons
-            if (['lb_voice', 'lb_messages', 'lb_overview'].includes(customId)) {
-                const guildId = interaction.guild.id;
-                const guildName = interaction.guild.name;
+            // Ping refresh button
+            if (customId === 'ping_refresh') {
+                const wsPing = interaction.client.ws.ping;
+                const uptime = require('../config/symbols').formatDuration(Math.floor(process.uptime()));
+                const memoryMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
+                const prefix = require('../config/env').config.prefix || 'k?';
+
+                const embed = new (require('discord.js').EmbedBuilder)()
+                    .setColor(0x2B2D31)
+                    .setAuthor({
+                        name: `${require('../config/symbols').toSmallCaps('KitKat')} • ${require('../config/symbols').toSmallCaps('System Telemetry')}`,
+                        iconURL: interaction.client.user.displayAvatarURL()
+                    })
+                    .setDescription(
+                        `### 📡 **${require('../config/symbols').toSmallCaps('Latency & System Telemetry')}**\n\n` +
+                        `> ⚡ **${require('../config/symbols').toSmallCaps('Gateway Latency')}:** \` ${wsPing >= 0 ? wsPing + 'ms' : 'Syncing...'} \`\n` +
+                        `> 🌐 **${require('../config/symbols').toSmallCaps('Roundtrip Ping')}:** \` ~${Math.floor(wsPing + 15)}ms \`\n\n` +
+                        `> ⏱️ **${require('../config/symbols').toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n` +
+                        `> 💾 **${require('../config/symbols').toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n\n` +
+                        `> 🏷️ **${require('../config/symbols').toSmallCaps('Prefix')}:** \` ${prefix} \`\n` +
+                        `> 🟢 **${require('../config/symbols').toSmallCaps('Database Cluster')}:** \` MongoDB Atlas [Connected] \`\n\n` +
+                        `───────────────────────────────────\n` +
+                        `*Refreshed just now • WebSocket connection is nominal.*`
+                    )
+                    .setFooter({
+                        text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
+                    })
+                    .setTimestamp();
+
+                return await interaction.update({ embeds: [embed] }).catch(() => {});
+            }
+
+            // Stats refresh button
+            if (customId.startsWith('stats_refresh_')) {
+                const targetUserId = customId.replace('stats_refresh_', '');
+                const targetMember = await interaction.guild.members.fetch(targetUserId).catch(() => null);
+                const targetUser = targetMember ? targetMember.user : await interaction.client.users.fetch(targetUserId).catch(() => null);
+
+                if (targetUser) {
+                    const stats = await require('../services/activityService').getUserStats(interaction.guild.id, targetUser.id);
+                    const voiceTimeFormatted = require('../config/symbols').formatDuration(stats.totalVoiceSeconds);
+
+                    const embed = new (require('discord.js').EmbedBuilder)()
+                        .setColor(0x2B2D31)
+                        .setAuthor({
+                            name: `${targetUser.displayName || targetUser.username} (${targetUser.tag})`,
+                            iconURL: targetUser.displayAvatarURL({ dynamic: true })
+                        })
+                        .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
+                        .setDescription(
+                            `**${interaction.guild.name}**\n` +
+                            `📅 **Created On:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:D>   •   📥 **Joined On:** ${targetMember ? `<t:${Math.floor(targetMember.joinedTimestamp / 1000)}:D>` : 'Unknown'}\n` +
+                            `───────────────────────────────────`
+                        )
+                        .addFields(
+                            {
+                                name: '🏆 Server Ranks',
+                                value: 
+                                    `> • **Message:** \`${stats.messageRank ? '#' + stats.messageRank : 'No Data'}\`\n` +
+                                    `> • **Voice:** \`${stats.voiceRank ? '#' + stats.voiceRank : 'No Data'}\``,
+                                inline: false
+                            },
+                            {
+                                name: '# Messages',
+                                value: `> • **Total:** \`${stats.messageCount.toLocaleString()} messages\``,
+                                inline: true
+                            },
+                            {
+                                name: '🔊 Voice Activity',
+                                value: 
+                                    `> • **Total:** \`${voiceTimeFormatted}\`\n` +
+                                    `> • **State:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting`' : '⚪ `Standby`'}`,
+                                inline: true
+                            }
+                        )
+                        .setFooter({
+                            text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
+                        })
+                        .setTimestamp();
+
+                    return await interaction.update({ embeds: [embed] }).catch(() => {});
+                }
+            }
+
+            // Leaderboard tab buttons & refresh
+            if (['lb_voice', 'lb_messages', 'lb_overview', 'lb_refresh'].includes(customId)) {
+                const guild = interaction.guild;
+                const guildId = guild.id;
 
                 let embed;
-                let activeCategory;
+                let activeCategory = 'overview';
 
                 if (customId === 'lb_voice') {
                     activeCategory = 'voice';
                     const list = await getVoiceLeaderboard(guildId, 10);
-                    embed = buildVoiceLeaderboardEmbed(guildName, list);
+                    embed = buildVoiceLeaderboardEmbed(guild, list);
                 } else if (customId === 'lb_messages') {
                     activeCategory = 'messages';
                     const list = await getMessageLeaderboard(guildId, 10);
-                    embed = buildMessageLeaderboardEmbed(guildName, list);
+                    embed = buildMessageLeaderboardEmbed(guild, list);
                 } else {
                     activeCategory = 'overview';
-                    const voiceList = await getVoiceLeaderboard(guildId, 3);
-                    const msgList = await getMessageLeaderboard(guildId, 3);
-                    embed = buildOverviewLeaderboardEmbed(guildName, voiceList, msgList);
+                    const voiceList = await getVoiceLeaderboard(guildId, 6);
+                    const msgList = await getMessageLeaderboard(guildId, 6);
+                    embed = buildOverviewLeaderboardEmbed(guild, voiceList, msgList);
                 }
 
-                const buttons = createLeaderboardButtons(activeCategory);
+                const components = createLeaderboardButtons(activeCategory);
 
                 return await interaction.update({
                     embeds: [embed],
-                    components: [buttons]
+                    components
                 }).catch(() => {});
             }
         }

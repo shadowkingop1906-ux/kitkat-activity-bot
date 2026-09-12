@@ -40,7 +40,7 @@ module.exports = {
             const memoryMB = (process.memoryUsage().rss / 1024 / 1024).toFixed(1);
 
             const embed = new EmbedBuilder()
-                .setColor(roundtrip < 200 ? Symbols.colors.primary : Symbols.colors.danger)
+                .setColor(0x2B2D31)
                 .setAuthor({
                     name: `${toSmallCaps('KitKat')} • ${toSmallCaps('System Telemetry')}`,
                     iconURL: message.client.user.displayAvatarURL()
@@ -57,15 +57,19 @@ module.exports = {
                     `*Discord Gateway WebSocket connection is nominal.*`
                 )
                 .setFooter({
-                    text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
+                    text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
                 })
                 .setTimestamp();
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId('panel_btn_system')
-                    .setLabel('System Details')
+                    .setLabel('System')
                     .setEmoji('ℹ️')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
+                    .setCustomId('ping_refresh')
+                    .setEmoji('🔄')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId('panel_btn_delete')
@@ -77,8 +81,8 @@ module.exports = {
             return message.reply({ embeds: [embed], components: [row] }).catch(() => {});
         }
 
-        // Command: k?stats [@user]
-        if (commandName === 'stats' || commandName === 'profile') {
+        // Command: k?stats [@user] (Aliases: k?u, k?profile)
+        if (commandName === 'stats' || commandName === 'profile' || commandName === 'u' || commandName === 'user') {
             const targetMember = message.mentions.members.first() ||
                 (args[0] ? await message.guild.members.fetch(args[0]).catch(() => null) : null) ||
                 message.member;
@@ -87,46 +91,56 @@ module.exports = {
             const stats = await getUserStats(message.guild.id, targetUser.id);
             const voiceTimeFormatted = formatDuration(stats.totalVoiceSeconds);
 
-            const vcRankBadge = Symbols.ranks[stats.voiceRank] || `\`#${stats.voiceRank}\``;
-            const msgRankBadge = Symbols.ranks[stats.messageRank] || `\`#${stats.messageRank}\``;
-
             const embed = new EmbedBuilder()
-                .setColor(stats.isCurrentlyInVoice ? Symbols.colors.success : Symbols.colors.primary)
+                .setColor(0x2B2D31)
                 .setAuthor({
-                    name: `${targetUser.username} • ${toSmallCaps('Activity Dossier')}`,
+                    name: `${targetUser.displayName || targetUser.username} (${targetUser.tag})`,
                     iconURL: targetUser.displayAvatarURL({ dynamic: true })
                 })
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
                 .setDescription(
-                    `### 📊 **${toSmallCaps('Operator Activity Dossier')}**\n\n` +
-                    `> 👤 **${toSmallCaps('Member')}:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
-                    `> 📡 **${toSmallCaps('Voice State')}:** ${stats.isCurrentlyInVoice ? '🟢 ` Transmitting in Voice `' : '⚪ ` Voice Standby / Idle `'}\n\n` +
-                    `───────────────────────────────────\n\n` +
-                    `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
-                    `• **${toSmallCaps('Duration Recorded')}:** \` ${voiceTimeFormatted} \`\n` +
-                    `• **${toSmallCaps('Guild Rank')}:** ${vcRankBadge}\n\n` +
-                    `💬 **${toSmallCaps('Chat Metrics')}**\n` +
-                    `• **${toSmallCaps('Messages Logged')}:** \` ${stats.messageCount.toLocaleString()} msgs \`\n` +
-                    `• **${toSmallCaps('Guild Rank')}:** ${msgRankBadge}\n\n` +
-                    `───────────────────────────────────\n\n` +
-                    `📅 **${toSmallCaps('Account Timeline')}**\n` +
-                    `• **${toSmallCaps('Joined Server')}:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:R>\n` +
-                    `• **${toSmallCaps('Registered Discord')}:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
+                    `**${message.guild.name}**\n` +
+                    `📅 **Created On:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:D>   •   📥 **Joined On:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:D>\n` +
+                    `───────────────────────────────────`
+                )
+                .addFields(
+                    {
+                        name: '🏆 Server Ranks',
+                        value: 
+                            `> • **Message:** \`${stats.messageRank ? '#' + stats.messageRank : 'No Data'}\`\n` +
+                            `> • **Voice:** \`${stats.voiceRank ? '#' + stats.voiceRank : 'No Data'}\``,
+                        inline: false
+                    },
+                    {
+                        name: '# Messages',
+                        value: `> • **Total:** \`${stats.messageCount.toLocaleString()} messages\``,
+                        inline: true
+                    },
+                    {
+                        name: '🔊 Voice Activity',
+                        value: 
+                            `> • **Total:** \`${voiceTimeFormatted}\`\n` +
+                            `> • **State:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting`' : '⚪ `Standby`'}`,
+                        inline: true
+                    }
                 )
                 .setFooter({
-                    text: `${toSmallCaps('KitKat Core Engine')} • ${message.guild.name}`
+                    text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
                 })
                 .setTimestamp();
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
                     .setCustomId('lb_overview')
-                    .setLabel('Leaderboard')
-                    .setEmoji('🏆')
+                    .setLabel('Overview')
+                    .setEmoji('🕒')
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
+                    .setCustomId(`stats_refresh_${targetUser.id}`)
+                    .setEmoji('🔄')
+                    .setStyle(ButtonStyle.Secondary),
+                new ButtonBuilder()
                     .setCustomId('panel_btn_delete')
-                    .setLabel('Close')
                     .setEmoji('🗑️')
                     .setStyle(ButtonStyle.Danger)
             );
@@ -134,32 +148,34 @@ module.exports = {
             return message.reply({ embeds: [embed], components: [row] }).catch(() => {});
         }
 
-        // Command: k?leaderboard or k?lb [voice|messages|overview]
-        if (commandName === 'leaderboard' || commandName === 'lb' || commandName === 'top') {
-            const subType = (args[0] || 'overview').toLowerCase();
+        // Command: k?leaderboard, k?lb, k?top, k?t, k?m, k?v
+        if (['leaderboard', 'lb', 'top', 't', 'm', 'messages', 'msg', 'v', 'voice', 'vc'].includes(commandName)) {
+            let subType = (args[0] || 'overview').toLowerCase();
+            if (['m', 'messages', 'msg'].includes(commandName)) subType = 'messages';
+            if (['v', 'voice', 'vc'].includes(commandName)) subType = 'voice';
+
             const guildId = message.guild.id;
-            const guildName = message.guild.name;
 
             let embed;
             let activeCategory = 'overview';
 
-            if (subType === 'voice' || subType === 'vc') {
+            if (subType === 'voice' || subType === 'vc' || subType === 'v') {
                 activeCategory = 'voice';
                 const list = await getVoiceLeaderboard(guildId, 10);
-                embed = buildVoiceLeaderboardEmbed(guildName, list);
-            } else if (subType === 'messages' || subType === 'msg' || subType === 'chat') {
+                embed = buildVoiceLeaderboardEmbed(message.guild, list);
+            } else if (subType === 'messages' || subType === 'msg' || subType === 'chat' || subType === 'm') {
                 activeCategory = 'messages';
                 const list = await getMessageLeaderboard(guildId, 10);
-                embed = buildMessageLeaderboardEmbed(guildName, list);
+                embed = buildMessageLeaderboardEmbed(message.guild, list);
             } else {
                 activeCategory = 'overview';
-                const voiceList = await getVoiceLeaderboard(guildId, 3);
-                const msgList = await getMessageLeaderboard(guildId, 3);
-                embed = buildOverviewLeaderboardEmbed(guildName, voiceList, msgList);
+                const voiceList = await getVoiceLeaderboard(guildId, 6);
+                const msgList = await getMessageLeaderboard(guildId, 6);
+                embed = buildOverviewLeaderboardEmbed(message.guild, voiceList, msgList);
             }
 
-            const buttons = createLeaderboardButtons(activeCategory);
-            return message.reply({ embeds: [embed], components: [buttons] }).catch(() => {});
+            const components = createLeaderboardButtons(activeCategory);
+            return message.reply({ embeds: [embed], components }).catch(() => {});
         }
 
         // Command: k?help

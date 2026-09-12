@@ -34,17 +34,17 @@ module.exports = {
         let embed;
         if (type === 'voice') {
             const list = await getVoiceLeaderboard(guildId, 10);
-            embed = buildVoiceLeaderboardEmbed(guildName, list);
+            embed = buildVoiceLeaderboardEmbed(interaction.guild, list);
         } else if (type === 'messages') {
             const list = await getMessageLeaderboard(guildId, 10);
-            embed = buildMessageLeaderboardEmbed(guildName, list);
+            embed = buildMessageLeaderboardEmbed(interaction.guild, list);
         } else {
-            const voiceList = await getVoiceLeaderboard(guildId, 3);
-            const msgList = await getMessageLeaderboard(guildId, 3);
-            embed = buildOverviewLeaderboardEmbed(guildName, voiceList, msgList);
+            const voiceList = await getVoiceLeaderboard(guildId, 6);
+            const msgList = await getMessageLeaderboard(guildId, 6);
+            embed = buildOverviewLeaderboardEmbed(interaction.guild, voiceList, msgList);
         }
 
-        const buttons = createLeaderboardButtons(type);
-        await interaction.editReply({ embeds: [embed], components: [buttons] });
+        const components = createLeaderboardButtons(type);
+        await interaction.editReply({ embeds: [embed], components });
     }
 };

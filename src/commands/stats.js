@@ -26,42 +26,55 @@ module.exports = {
         const msgRankBadge = Symbols.ranks[stats.messageRank] || `\`#${stats.messageRank}\``;
 
         const embed = new EmbedBuilder()
-            .setColor(stats.isCurrentlyInVoice ? Symbols.colors.success : Symbols.colors.primary)
+            .setColor(0x2B2D31)
             .setAuthor({
-                name: `${targetUser.username} • ${toSmallCaps('Activity Dossier')}`,
+                name: `${targetUser.displayName || targetUser.username} (${targetUser.tag})`,
                 iconURL: targetUser.displayAvatarURL({ dynamic: true })
             })
             .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
             .setDescription(
-                `### 📊 **${toSmallCaps('Operator Activity Dossier')}**\n\n` +
-                `> 👤 **${toSmallCaps('Member')}:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
-                `> 📡 **${toSmallCaps('Voice State')}:** ${stats.isCurrentlyInVoice ? '🟢 ` Transmitting in Voice `' : '⚪ ` Voice Standby / Idle `'}\n\n` +
-                `───────────────────────────────────\n\n` +
-                `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
-                `• **${toSmallCaps('Duration Recorded')}:** \` ${voiceTimeFormatted} \`\n` +
-                `• **${toSmallCaps('Guild Rank')}:** ${vcRankBadge}\n\n` +
-                `💬 **${toSmallCaps('Chat Metrics')}**\n` +
-                `• **${toSmallCaps('Messages Logged')}:** \` ${stats.messageCount.toLocaleString()} msgs \`\n` +
-                `• **${toSmallCaps('Guild Rank')}:** ${msgRankBadge}\n\n` +
-                `───────────────────────────────────\n\n` +
-                `📅 **${toSmallCaps('Account Timeline')}**\n` +
-                `• **${toSmallCaps('Joined Server')}:** ${member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown'}\n` +
-                `• **${toSmallCaps('Registered Discord')}:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
+                `**${interaction.guild.name}**\n` +
+                `📅 **Created On:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:D>   •   📥 **Joined On:** ${member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:D>` : 'Unknown'}\n` +
+                `───────────────────────────────────`
+            )
+            .addFields(
+                {
+                    name: '🏆 Server Ranks',
+                    value: 
+                        `> • **Message:** \`${stats.messageRank ? '#' + stats.messageRank : 'No Data'}\`\n` +
+                        `> • **Voice:** \`${stats.voiceRank ? '#' + stats.voiceRank : 'No Data'}\``,
+                    inline: false
+                },
+                {
+                    name: '# Messages',
+                    value: `> • **Total:** \`${stats.messageCount.toLocaleString()} messages\``,
+                    inline: true
+                },
+                {
+                    name: '🔊 Voice Activity',
+                    value: 
+                        `> • **Total:** \`${voiceTimeFormatted}\`\n` +
+                        `> • **State:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting`' : '⚪ `Standby`'}`,
+                    inline: true
+                }
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Core Engine')} • ${interaction.guild.name}`
+                text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
             })
             .setTimestamp();
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('lb_overview')
-                .setLabel('Leaderboard')
-                .setEmoji('🏆')
+                .setLabel('Overview')
+                .setEmoji('🕒')
                 .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
+                .setCustomId(`stats_refresh_${targetUser.id}`)
+                .setEmoji('🔄')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
                 .setCustomId('panel_btn_delete')
-                .setLabel('Close')
                 .setEmoji('🗑️')
                 .setStyle(ButtonStyle.Danger)
         );

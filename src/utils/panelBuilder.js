@@ -38,16 +38,16 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             })
             .setThumbnail(client.user.displayAvatarURL())
             .setDescription(
-                `### ⚡ **${toSmallCaps('KitKat Core Protocol')}**\n\n` +
+                `### ⚡ **${toSmallCaps('KitKat Support Protocol')}**\n\n` +
                 `> 👑 **${toSmallCaps('Owner')}:** <@${ownerId}>\n` +
                 `> 🏷️ **${toSmallCaps('Prefix')}:** \` ${prefix} \`  •  🟢 **${toSmallCaps('Status')}:** \` Online \`\n` +
-                `> 📊 **${toSmallCaps('Engine')}:** \` Realtime Voice & Chat Telemetry \`\n\n` +
-                `*A high-performance telemetry engine recording voice activity, chat volume, and server rankings.*\n\n` +
+                `> 📊 **${toSmallCaps('Service')}:** \` Realtime Voice & Chat Telemetry \`\n\n` +
+                `*A high-performance activity tracking system recording voice presence, chat volume, and server rankings.*\n\n` +
                 `───────────────────────────────────\n\n` +
                 `### 📋 **${toSmallCaps('Command Matrix')}**\n\n` +
-                `▸ **\`/stats\`** ᴏʀ **\`${prefix}stats [@user]\`**\n` +
+                `▸ **\`/stats\`** ᴏʀ **\`${prefix}stats [@user]\`** (Alias: \`${prefix}u\`)\n` +
                 `╰─› *Inspect member voice hours, chat volume & rank dossier.*\n\n` +
-                `▸ **\`/leaderboard\`** ᴏʀ **\`${prefix}lb\`**\n` +
+                `▸ **\`/leaderboard\`** ᴏʀ **\`${prefix}lb\`** (Aliases: \`${prefix}t\`, \`${prefix}top\`)\n` +
                 `╰─› *Interactive server rankings with realtime tabs for voice & text.*\n\n` +
                 `▸ **\`/ping\`** ᴏʀ **\`${prefix}ping\`**\n` +
                 `╰─› *Realtime WebSocket latency gauge, host memory footprint & uptime.*\n\n` +
@@ -57,7 +57,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 `*Select a tab from the buttons or dropdown menu below to inspect details.*`
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Core Engine')} • ${toSmallCaps('v2.0 Panel')}`,
+                text: `⚡ Powered by KitKat Support • ${toSmallCaps('v2.0 Panel')}`,
                 iconURL: client.user.displayAvatarURL()
             })
             .setTimestamp();
@@ -87,28 +87,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 `*Host environment is operational and synchronizing background metrics.*`
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Telemetry')} • System Operational`
-            })
-            .setTimestamp();
-    } else if (activeTab === 'developer') {
-        embed
-            .setAuthor({
-                name: `${toSmallCaps('KitKat')} • ${toSmallCaps('Developer Protocol')}`,
-                iconURL: client.user.displayAvatarURL()
-            })
-            .setDescription(
-                `### 💻 **${toSmallCaps('Developer & Core Architecture')}**\n\n` +
-                `> 🛠️ **${toSmallCaps('Lead Architecture')}:** Google DeepMind / Antigravity AGY\n` +
-                `> 🏛️ **${toSmallCaps('Design Pattern')}:** Clean Hexagonal Architecture (Node.js)\n` +
-                `> 🗄️ **${toSmallCaps('Database Layer')}:** Mongoose ORM / MongoDB Atlas\n` +
-                `> 💓 **${toSmallCaps('Keep-Alive Service')}:** Express HTTP Microservice (8m Heartbeat)\n` +
-                `> 🎛️ **${toSmallCaps('Component Framework')}:** Discord Component V2 ActionRows & Selects\n` +
-                `> 📂 **${toSmallCaps('Open Source Repo')}:** [GitHub Repository](https://github.com/shadowkingop1906-ux/kitkat-activity-bot)\n\n` +
-                `───────────────────────────────────\n` +
-                `*Engineered for 24/7 uptime with automated session recovery.*`
-            )
-            .setFooter({
-                text: `${toSmallCaps('KitKat Dev Team')} • Enterprise Architecture`
+                text: `⚡ Powered by KitKat Support • Operational`
             })
             .setTimestamp();
     } else if (activeTab === 'owner') {
@@ -128,7 +107,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 `*Authorized to execute root telemetry maintenance and cluster commands.*`
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Security')} • Verified Owner Badge`
+                text: `⚡ Powered by KitKat Support • Verified Owner Badge`
             })
             .setTimestamp();
     } else if (activeTab === 'supporter') {
@@ -139,7 +118,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             })
             .setDescription(
                 `### 🌟 **${toSmallCaps('Supporters & Contributors')}**\n\n` +
-                `> ✨ **${toSmallCaps('Server Communities')}:** Special thanks to all active guilds utilizing KitKat Engine!\n\n` +
+                `> ✨ **${toSmallCaps('Server Communities')}:** Special thanks to all active guilds utilizing KitKat Support!\n\n` +
                 `> 🎁 **${toSmallCaps('Supporter Perks')}:**\n` +
                 `> • Custom profile telemetry badge\n` +
                 `> • Priority database synchronization\n` +
@@ -149,13 +128,13 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 `*Thank you for supporting continuous development and hosting!*`
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Community')} • Supporter Tier`
+                text: `⚡ Powered by KitKat Support • Supporter Tier`
             })
             .setTimestamp();
     }
 
     // Component V2 Elements:
-    // 1. Dropdown Select Menu
+    // 1. Dropdown Select Menu (Developer removed)
     const selectMenu = new StringSelectMenuBuilder()
         .setCustomId('panel_select')
         .setPlaceholder('Navigation Menu • Choose a panel view')
@@ -173,12 +152,6 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 .setValue('system')
                 .setDefault(activeTab === 'system'),
             new StringSelectMenuOptionBuilder()
-                .setLabel('Developer Info')
-                .setDescription('Architecture, framework, and credits')
-                .setEmoji('💻')
-                .setValue('developer')
-                .setDefault(activeTab === 'developer'),
-            new StringSelectMenuOptionBuilder()
                 .setLabel('Owner Directory')
                 .setDescription('Owner details & verified operators')
                 .setEmoji('👑')
@@ -194,7 +167,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
 
     const rowSelect = new ActionRowBuilder().addComponents(selectMenu);
 
-    // 2. Navigation Buttons (Row 1: 4 Category Buttons)
+    // 2. Navigation Buttons (Row 1: 4 Category Buttons without Developer)
     const rowButtonsTop = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId('panel_btn_home')
@@ -207,27 +180,22 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             .setEmoji('ℹ️')
             .setStyle(activeTab === 'system' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
-            .setCustomId('panel_btn_developer')
-            .setLabel('Developer')
-            .setEmoji('💻')
-            .setStyle(activeTab === 'developer' ? ButtonStyle.Primary : ButtonStyle.Secondary),
-        new ButtonBuilder()
             .setCustomId('panel_btn_owner')
             .setLabel('Owner')
             .setEmoji('👑')
-            .setStyle(activeTab === 'owner' ? ButtonStyle.Primary : ButtonStyle.Secondary)
-    );
-
-    // 3. Navigation Buttons (Row 2: 4 Action & Link Buttons)
-    const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${config.clientId}&permissions=8&scope=bot%20applications.commands`;
-    const supportUrl = 'https://discord.gg/';
-
-    const rowButtonsBottom = new ActionRowBuilder().addComponents(
+            .setStyle(activeTab === 'owner' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setCustomId('panel_btn_supporter')
             .setLabel('Supporter')
             .setEmoji('🌟')
-            .setStyle(activeTab === 'supporter' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            .setStyle(activeTab === 'supporter' ? ButtonStyle.Primary : ButtonStyle.Secondary)
+    );
+
+    // 3. Navigation Buttons (Row 2: Action & Link Buttons)
+    const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${config.clientId}&permissions=8&scope=bot%20applications.commands`;
+    const supportUrl = 'https://discord.gg/';
+
+    const rowButtonsBottom = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setLabel('Support')
             .setEmoji('💬')

@@ -34,15 +34,19 @@ module.exports = {
                 `*Discord Gateway WebSocket connection is nominal.*`
             )
             .setFooter({
-                text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
+                text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
             })
             .setTimestamp();
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('panel_btn_system')
-                .setLabel('System Details')
+                .setLabel('System')
                 .setEmoji('ℹ️')
+                .setStyle(ButtonStyle.Secondary),
+            new ButtonBuilder()
+                .setCustomId('ping_refresh')
+                .setEmoji('🔄')
                 .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId('panel_btn_delete')

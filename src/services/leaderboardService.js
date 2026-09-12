@@ -45,92 +45,50 @@ async function getMessageLeaderboard(guildId, limit = 10) {
  * @param {string} guildName
  * @param {Array} entries
  */
-function buildVoiceLeaderboardEmbed(guildName, entries) {
-    const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.primary)
-        .setAuthor({
-            name: `${toSmallCaps('Voice Leaderboard')} • ${guildName}`
-        })
-        .setDescription(
-            `### 🎙️ **${toSmallCaps('Top Voice Members')}**\n` +
-            `*Realtime tracking of voice presence and communication duration.*\n\n` +
-            `───────────────────────────────────`
-        );
-
-    if (!entries || entries.length === 0) {
-        embed.addFields({
-            name: `⚠️ **${toSmallCaps('Status')}**`,
-            value: '*No voice activity recorded yet for this server.*'
-        });
-        return embed;
-    }
-
-    const maxTime = entries[0].currentTotal || entries[0].voiceTimeSeconds || 1;
-
-    const lines = entries.map((item, index) => {
-        const rank = index + 1;
-        const badge = Symbols.ranks[rank] || `\`#${rank}\``;
-        const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
-        const bar = createSymbolProgressBar(item.currentTotal || item.voiceTimeSeconds, maxTime, 6);
-
-        return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Duration')}:** \` ${timeStr} \`  •  ${bar}`;
-    });
-
-    embed.addFields({
-        name: `🏆 **${toSmallCaps('Server Rankings (Top 10)')}**`,
-        value: lines.join('\n\n')
-    });
-
-    embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Synchronized with MongoDB`
-    });
-    embed.setTimestamp();
-
-    return embed;
-}
-
 /**
- * Generates sleek modern embed for Message Leaderboard
- * @param {string} guildName
+ * Generates Statbot-styled embed for Voice Leaderboard
+ * @param {object|string} guildOrName
  * @param {Array} entries
  */
-function buildMessageLeaderboardEmbed(guildName, entries) {
+function buildVoiceLeaderboardEmbed(guildOrName, entries) {
+    const guildName = typeof guildOrName === 'string' ? guildOrName : (guildOrName?.name || 'Server');
+    const guildIcon = typeof guildOrName === 'object' && guildOrName?.iconURL ? guildOrName.iconURL() : undefined;
+
     const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.accent)
+        .setColor(0x2B2D31)
         .setAuthor({
-            name: `${toSmallCaps('Chat Leaderboard')} • ${guildName}`
+            name: `${guildName}`,
+            iconURL: guildIcon
         })
+        .setTitle('🔊 Voice Activity')
         .setDescription(
-            `### 💬 **${toSmallCaps('Top Chat Members')}**\n` +
-            `*Realtime tracking of message volume across guild channels.*\n\n` +
+            `**Server Lookback: All-time**\n` +
+            `Realtime tracking of voice presence and communication duration.\n` +
             `───────────────────────────────────`
         );
 
     if (!entries || entries.length === 0) {
         embed.addFields({
-            name: `⚠️ **${toSmallCaps('Status')}**`,
-            value: '*No text messages recorded yet for this server.*'
+            name: 'Voice Activity',
+            value: '```\nN/A                                      0 h\n```'
         });
-        return embed;
+    } else {
+        const maxTime = entries[0].currentTotal || entries[0].voiceTimeSeconds || 1;
+        const lines = entries.slice(0, 10).map((item, idx) => {
+            const rank = idx + 1;
+            const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
+            const bar = createSymbolProgressBar(item.currentTotal || item.voiceTimeSeconds, maxTime, 6);
+            return `**${rank}.** <@${item.userId}>\n╰─› \`${timeStr}\` • ${bar}`;
+        });
+
+        embed.addFields({
+            name: 'Top Voice Members',
+            value: lines.join('\n\n')
+        });
     }
 
-    const maxCount = entries[0].messageCount || 1;
-
-    const lines = entries.map((item, index) => {
-        const rank = index + 1;
-        const badge = Symbols.ranks[rank] || `\`#${rank}\``;
-        const bar = createSymbolProgressBar(item.messageCount, maxCount, 6);
-
-        return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Messages')}:** \` ${item.messageCount.toLocaleString()} msgs \`  •  ${bar}`;
-    });
-
-    embed.addFields({
-        name: `🏆 **${toSmallCaps('Server Rankings (Top 10)')}**`,
-        value: lines.join('\n\n')
-    });
-
     embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Synchronized with MongoDB`
+        text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
     });
     embed.setTimestamp();
 
@@ -138,57 +96,106 @@ function buildMessageLeaderboardEmbed(guildName, entries) {
 }
 
 /**
- * Generates overview leaderboard embed (Dual Podium)
- * @param {string} guildName
+ * Generates Statbot-styled embed for Message Leaderboard
+ * @param {object|string} guildOrName
+ * @param {Array} entries
+ */
+function buildMessageLeaderboardEmbed(guildOrName, entries) {
+    const guildName = typeof guildOrName === 'string' ? guildOrName : (guildOrName?.name || 'Server');
+    const guildIcon = typeof guildOrName === 'object' && guildOrName?.iconURL ? guildOrName.iconURL() : undefined;
+
+    const embed = new EmbedBuilder()
+        .setColor(0x2B2D31)
+        .setAuthor({
+            name: `${guildName}`,
+            iconURL: guildIcon
+        })
+        .setTitle('# Messages')
+        .setDescription(
+            `**Server Lookback: All-time**\n` +
+            `Realtime tracking of message volume across guild text channels.\n` +
+            `───────────────────────────────────`
+        );
+
+    if (!entries || entries.length === 0) {
+        embed.addFields({
+            name: 'Messages',
+            value: '```\nN/A                                        0\n```'
+        });
+    } else {
+        const maxCount = entries[0].messageCount || 1;
+        const lines = entries.slice(0, 10).map((item, idx) => {
+            const rank = idx + 1;
+            const bar = createSymbolProgressBar(item.messageCount, maxCount, 6);
+            return `**${rank}.** <@${item.userId}>\n╰─› \`${item.messageCount.toLocaleString()} messages\` • ${bar}`;
+        });
+
+        embed.addFields({
+            name: 'Top Message Members',
+            value: lines.join('\n\n')
+        });
+    }
+
+    embed.setFooter({
+        text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
+    });
+    embed.setTimestamp();
+
+    return embed;
+}
+
+/**
+ * Generates Statbot-styled Overview embed (Top Statistics matching s?t)
+ * @param {object|string} guildOrName
  * @param {Array} voiceEntries
  * @param {Array} messageEntries
  */
-function buildOverviewLeaderboardEmbed(guildName, voiceEntries, messageEntries) {
-    const embed = new EmbedBuilder()
-        .setColor(Symbols.colors.primary)
-        .setAuthor({
-            name: `${toSmallCaps('Server Overview')} • ${guildName}`
-        })
-        .setDescription(
-            `### 🌟 **${toSmallCaps('Activity Overview Podium')}**\n` +
-            `*Top performers across voice channels and text chats.*\n\n` +
-            `───────────────────────────────────`
-        );
+function buildOverviewLeaderboardEmbed(guildOrName, voiceEntries, messageEntries) {
+    const guildName = typeof guildOrName === 'string' ? guildOrName : (guildOrName?.name || 'Server');
+    const guildIcon = typeof guildOrName === 'object' && guildOrName?.iconURL ? guildOrName.iconURL() : undefined;
 
-    // Top 3 voice
-    let voiceText = '*No voice activity recorded yet.*';
-    if (voiceEntries && voiceEntries.length > 0) {
-        voiceText = voiceEntries.slice(0, 3).map((item, idx) => {
-            const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
-            const badge = Symbols.ranks[idx + 1] || `\`#${idx + 1}\``;
-            return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Time')}:** \` ${timeStr} \``;
-        }).join('\n\n');
+    const embed = new EmbedBuilder()
+        .setColor(0x2B2D31)
+        .setAuthor({
+            name: `${guildName}`,
+            iconURL: guildIcon
+        })
+        .setTitle('🏆 Top Statistics');
+
+    // Top message members (up to 6)
+    let msgLines = '```\nN/A                                        0\n```';
+    if (messageEntries && messageEntries.length > 0) {
+        msgLines = messageEntries.slice(0, 6).map((item, idx) => {
+            const rank = idx + 1;
+            return `**${rank}.** <@${item.userId}> — \`${item.messageCount.toLocaleString()} msgs\``;
+        }).join('\n');
     }
 
-    // Top 3 messages
-    let messageText = '*No message activity recorded yet.*';
-    if (messageEntries && messageEntries.length > 0) {
-        messageText = messageEntries.slice(0, 3).map((item, idx) => {
-            const badge = Symbols.ranks[idx + 1] || `\`#${idx + 1}\``;
-            return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Count')}:** \` ${item.messageCount.toLocaleString()} msgs \``;
-        }).join('\n\n');
+    // Top voice members (up to 6)
+    let voiceLines = '```\nN/A                                      0 h\n```';
+    if (voiceEntries && voiceEntries.length > 0) {
+        voiceLines = voiceEntries.slice(0, 6).map((item, idx) => {
+            const rank = idx + 1;
+            const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
+            return `**${rank}.** <@${item.userId}> — \`${timeStr}\``;
+        }).join('\n');
     }
 
     embed.addFields(
         {
-            name: `🎙️ **${toSmallCaps('Voice Leaders')}**`,
-            value: voiceText,
-            inline: true
+            name: '# Messages',
+            value: msgLines,
+            inline: false
         },
         {
-            name: `💬 **${toSmallCaps('Chat Leaders')}**`,
-            value: messageText,
-            inline: true
+            name: '🔊 Voice Activity',
+            value: voiceLines,
+            inline: false
         }
     );
 
     embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Switch tabs using buttons below`
+        text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
     });
     embed.setTimestamp();
 
@@ -196,32 +203,65 @@ function buildOverviewLeaderboardEmbed(guildName, voiceEntries, messageEntries) 
 }
 
 /**
- * Creates interactive button row to switch between tabs with delete button
+ * Creates interactive dropdown menu and button row matching Statbot Component V2
  * @param {string} activeCategory 'voice' | 'messages' | 'overview'
  */
 function createLeaderboardButtons(activeCategory = 'overview') {
-    return new ActionRowBuilder().addComponents(
+    const { StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+
+    const selectMenu = new StringSelectMenuBuilder()
+        .setCustomId('lb_select_menu')
+        .setPlaceholder('Navigation • Choose leaderboard view')
+        .addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Overview (Top Statistics)')
+                .setDescription('Combined voice and chat statistics')
+                .setEmoji('🕒')
+                .setValue('lb_overview')
+                .setDefault(activeCategory === 'overview'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Voice Activity')
+                .setDescription('Detailed voice duration rankings')
+                .setEmoji('🔊')
+                .setValue('lb_voice')
+                .setDefault(activeCategory === 'voice'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Messages')
+                .setDescription('Detailed message volume rankings')
+                .setEmoji('💬')
+                .setValue('lb_messages')
+                .setDefault(activeCategory === 'messages')
+        );
+
+    const rowSelect = new ActionRowBuilder().addComponents(selectMenu);
+
+    const rowButtons = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId('lb_overview')
             .setLabel('Overview')
-            .setEmoji('🏆')
+            .setEmoji('🕒')
             .setStyle(activeCategory === 'overview' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setCustomId('lb_voice')
             .setLabel('Voice')
-            .setEmoji('🎙️')
+            .setEmoji('🔊')
             .setStyle(activeCategory === 'voice' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setCustomId('lb_messages')
-            .setLabel('Chat')
+            .setLabel('Messages')
             .setEmoji('💬')
             .setStyle(activeCategory === 'messages' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
+            .setCustomId('lb_refresh')
+            .setEmoji('🔄')
+            .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
             .setCustomId('panel_btn_delete')
-            .setLabel('Close')
             .setEmoji('🗑️')
             .setStyle(ButtonStyle.Danger)
     );
+
+    return [rowSelect, rowButtons];
 }
 
 module.exports = {
