@@ -7,7 +7,9 @@ const {
     buildVoiceLeaderboardEmbed,
     buildMessageLeaderboardEmbed,
     buildOverviewLeaderboardEmbed,
-    createLeaderboardButtons
+    buildUserStatsEmbed,
+    createLeaderboardButtons,
+    createUserStatsButtons
 } = require('../services/leaderboardService');
 const { Symbols, toSmallCaps, formatDuration } = require('../config/symbols');
 const { buildPanel } = require('../utils/panelBuilder');
@@ -89,61 +91,9 @@ module.exports = {
 
             const targetUser = targetMember.user;
             const stats = await getUserStats(message.guild.id, targetUser.id);
-            const voiceTimeFormatted = formatDuration(stats.totalVoiceSeconds);
 
-            const embed = new EmbedBuilder()
-                .setColor(0x2B2D31)
-                .setAuthor({
-                    name: `${targetUser.displayName || targetUser.username} (${targetUser.tag})`,
-                    iconURL: targetUser.displayAvatarURL({ dynamic: true })
-                })
-                .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
-                .setDescription(
-                    `**${message.guild.name}**\n` +
-                    `📅 **Created On:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:D>   •   📥 **Joined On:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:D>\n` +
-                    `───────────────────────────────────`
-                )
-                .addFields(
-                    {
-                        name: '🏆 Server Ranks',
-                        value: 
-                            `> • **Message:** \`${stats.messageRank ? '#' + stats.messageRank : 'No Data'}\`\n` +
-                            `> • **Voice:** \`${stats.voiceRank ? '#' + stats.voiceRank : 'No Data'}\``,
-                        inline: false
-                    },
-                    {
-                        name: '# Messages',
-                        value: `> • **Total:** \`${stats.messageCount.toLocaleString()} messages\``,
-                        inline: true
-                    },
-                    {
-                        name: '🔊 Voice Activity',
-                        value: 
-                            `> • **Total:** \`${voiceTimeFormatted}\`\n` +
-                            `> • **State:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting`' : '⚪ `Standby`'}`,
-                        inline: true
-                    }
-                )
-                .setFooter({
-                    text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
-                })
-                .setTimestamp();
-
-            const row = new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                    .setCustomId('lb_overview')
-                    .setLabel('Overview')
-                    .setEmoji('🕒')
-                    .setStyle(ButtonStyle.Primary),
-                new ButtonBuilder()
-                    .setCustomId(`stats_refresh_${targetUser.id}`)
-                    .setEmoji('🔄')
-                    .setStyle(ButtonStyle.Secondary),
-                new ButtonBuilder()
-                    .setCustomId('panel_btn_delete')
-                    .setEmoji('🗑️')
-                    .setStyle(ButtonStyle.Danger)
-            );
+            const embed = buildUserStatsEmbed(message.guild, targetUser, targetMember, stats);
+            const row = createUserStatsButtons(targetUser.id);
 
             return message.reply({ embeds: [embed], components: [row] }).catch(() => {});
         }

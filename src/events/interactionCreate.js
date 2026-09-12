@@ -5,8 +5,11 @@ const {
     buildVoiceLeaderboardEmbed,
     buildMessageLeaderboardEmbed,
     buildOverviewLeaderboardEmbed,
-    createLeaderboardButtons
+    buildUserStatsEmbed,
+    createLeaderboardButtons,
+    createUserStatsButtons
 } = require('../services/leaderboardService');
+const { getUserStats } = require('../services/activityService');
 const { buildPanel } = require('../utils/panelBuilder');
 
 module.exports = {
@@ -129,47 +132,8 @@ module.exports = {
                 const targetUser = targetMember ? targetMember.user : await interaction.client.users.fetch(targetUserId).catch(() => null);
 
                 if (targetUser) {
-                    const stats = await require('../services/activityService').getUserStats(interaction.guild.id, targetUser.id);
-                    const voiceTimeFormatted = require('../config/symbols').formatDuration(stats.totalVoiceSeconds);
-
-                    const embed = new (require('discord.js').EmbedBuilder)()
-                        .setColor(0x2B2D31)
-                        .setAuthor({
-                            name: `${targetUser.displayName || targetUser.username} (${targetUser.tag})`,
-                            iconURL: targetUser.displayAvatarURL({ dynamic: true })
-                        })
-                        .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
-                        .setDescription(
-                            `**${interaction.guild.name}**\n` +
-                            `📅 **Created On:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:D>   •   📥 **Joined On:** ${targetMember ? `<t:${Math.floor(targetMember.joinedTimestamp / 1000)}:D>` : 'Unknown'}\n` +
-                            `───────────────────────────────────`
-                        )
-                        .addFields(
-                            {
-                                name: '🏆 Server Ranks',
-                                value: 
-                                    `> • **Message:** \`${stats.messageRank ? '#' + stats.messageRank : 'No Data'}\`\n` +
-                                    `> • **Voice:** \`${stats.voiceRank ? '#' + stats.voiceRank : 'No Data'}\``,
-                                inline: false
-                            },
-                            {
-                                name: '# Messages',
-                                value: `> • **Total:** \`${stats.messageCount.toLocaleString()} messages\``,
-                                inline: true
-                            },
-                            {
-                                name: '🔊 Voice Activity',
-                                value: 
-                                    `> • **Total:** \`${voiceTimeFormatted}\`\n` +
-                                    `> • **State:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting`' : '⚪ `Standby`'}`,
-                                inline: true
-                            }
-                        )
-                        .setFooter({
-                            text: `Server Lookback: All-time — Timezone: UTC • ⚡ Powered by KitKat Support`
-                        })
-                        .setTimestamp();
-
+                    const stats = await getUserStats(interaction.guild.id, targetUser.id);
+                    const embed = buildUserStatsEmbed(interaction.guild, targetUser, targetMember, stats);
                     return await interaction.update({ embeds: [embed] }).catch(() => {});
                 }
             }

@@ -79,7 +79,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 `> 🌐 **${toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n\n` +
                 `> 💾 **${toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n` +
                 `> 🟢 **${toSmallCaps('Database Cluster')}:** \` MongoDB Atlas [Connected] \`\n\n` +
-                `> ⚙️ **${toSmallCaps('Node.js Engine')}:** \` ${process.version} \`\n` +
+                `> ⚙️ **${toSmallCaps('Node.js Runtime')}:** \` ${process.version} \`\n` +
                 `> 📦 **${toSmallCaps('Discord.js')}:** \` v14.17.3 \`\n\n` +
                 `> 🛡️ **${toSmallCaps('Guilds Monitored')}:** \` ${guildCount.toLocaleString()} Servers \`\n` +
                 `> 👥 **${toSmallCaps('Total Members')}:** \` ${totalMembers.toLocaleString()} Users \`\n\n` +

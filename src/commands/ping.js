@@ -29,7 +29,7 @@ module.exports = {
                 `> ⏱️ **${toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n` +
                 `> 💾 **${toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n\n` +
                 `> 🟢 **${toSmallCaps('Database Cluster')}:** \` ${isDbOnline ? 'MongoDB Atlas [Connected]' : 'Degraded [Offline]'} \`\n` +
-                `> ⚙️ **${toSmallCaps('Node.js Engine')}:** \` ${process.version} \`\n\n` +
+                `> ⚙️ **${toSmallCaps('Node.js Runtime')}:** \` ${process.version} \`\n\n` +
                 `───────────────────────────────────\n` +
                 `*Discord Gateway WebSocket connection is nominal.*`
             )
