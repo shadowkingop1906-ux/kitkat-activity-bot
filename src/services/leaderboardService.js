@@ -51,12 +51,16 @@ function buildVoiceLeaderboardEmbed(guildName, entries) {
         .setAuthor({
             name: `${toSmallCaps('Voice Leaderboard')} • ${guildName}`
         })
-        .setDescription(`### 🎙️ ${toSmallCaps('Top Voice Members')}\nReal-time recorded voice activity.`);
+        .setDescription(
+            `### 🎙️ **${toSmallCaps('Top Voice Members')}**\n` +
+            `*Realtime tracking of voice presence and communication duration.*\n\n` +
+            `───────────────────────────────────`
+        );
 
     if (!entries || entries.length === 0) {
         embed.addFields({
-            name: 'Status',
-            value: 'No voice activity recorded yet for this server.'
+            name: `⚠️ **${toSmallCaps('Status')}**`,
+            value: '*No voice activity recorded yet for this server.*'
         });
         return embed;
     }
@@ -69,16 +73,16 @@ function buildVoiceLeaderboardEmbed(guildName, entries) {
         const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
         const bar = createSymbolProgressBar(item.currentTotal || item.voiceTimeSeconds, maxTime, 6);
 
-        return `${badge} <@${item.userId}>\n› Time: \`${timeStr}\` • ${bar}`;
+        return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Duration')}:** \` ${timeStr} \`  •  ${bar}`;
     });
 
     embed.addFields({
-        name: '🏆 Rankings',
+        name: `🏆 **${toSmallCaps('Server Rankings (Top 10)')}**`,
         value: lines.join('\n\n')
     });
 
     embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Auto-Synchronized`
+        text: `${toSmallCaps('KitKat Telemetry')} • Synchronized with MongoDB`
     });
     embed.setTimestamp();
 
@@ -96,12 +100,16 @@ function buildMessageLeaderboardEmbed(guildName, entries) {
         .setAuthor({
             name: `${toSmallCaps('Chat Leaderboard')} • ${guildName}`
         })
-        .setDescription(`### 💬 ${toSmallCaps('Top Chat Members')}\nReal-time recorded message volume.`);
+        .setDescription(
+            `### 💬 **${toSmallCaps('Top Chat Members')}**\n` +
+            `*Realtime tracking of message volume across guild channels.*\n\n` +
+            `───────────────────────────────────`
+        );
 
     if (!entries || entries.length === 0) {
         embed.addFields({
-            name: 'Status',
-            value: 'No text messages recorded yet for this server.'
+            name: `⚠️ **${toSmallCaps('Status')}**`,
+            value: '*No text messages recorded yet for this server.*'
         });
         return embed;
     }
@@ -113,16 +121,16 @@ function buildMessageLeaderboardEmbed(guildName, entries) {
         const badge = Symbols.ranks[rank] || `\`#${rank}\``;
         const bar = createSymbolProgressBar(item.messageCount, maxCount, 6);
 
-        return `${badge} <@${item.userId}>\n› Messages: \`${item.messageCount.toLocaleString()}\` • ${bar}`;
+        return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Messages')}:** \` ${item.messageCount.toLocaleString()} msgs \`  •  ${bar}`;
     });
 
     embed.addFields({
-        name: '🏆 Rankings',
+        name: `🏆 **${toSmallCaps('Server Rankings (Top 10)')}**`,
         value: lines.join('\n\n')
     });
 
     embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Auto-Synchronized`
+        text: `${toSmallCaps('KitKat Telemetry')} • Synchronized with MongoDB`
     });
     embed.setTimestamp();
 
@@ -141,42 +149,46 @@ function buildOverviewLeaderboardEmbed(guildName, voiceEntries, messageEntries) 
         .setAuthor({
             name: `${toSmallCaps('Server Overview')} • ${guildName}`
         })
-        .setDescription(`### 🌟 ${toSmallCaps('Activity Overview')}\nTop performers in voice and text channels.`);
+        .setDescription(
+            `### 🌟 **${toSmallCaps('Activity Overview Podium')}**\n` +
+            `*Top performers across voice channels and text chats.*\n\n` +
+            `───────────────────────────────────`
+        );
 
     // Top 3 voice
     let voiceText = '*No voice activity recorded yet.*';
     if (voiceEntries && voiceEntries.length > 0) {
         voiceText = voiceEntries.slice(0, 3).map((item, idx) => {
             const timeStr = formatDuration(item.currentTotal || item.voiceTimeSeconds);
-            const badge = Symbols.ranks[idx + 1];
-            return `${badge} <@${item.userId}> — \`${timeStr}\``;
-        }).join('\n');
+            const badge = Symbols.ranks[idx + 1] || `\`#${idx + 1}\``;
+            return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Time')}:** \` ${timeStr} \``;
+        }).join('\n\n');
     }
 
     // Top 3 messages
     let messageText = '*No message activity recorded yet.*';
     if (messageEntries && messageEntries.length > 0) {
         messageText = messageEntries.slice(0, 3).map((item, idx) => {
-            const badge = Symbols.ranks[idx + 1];
-            return `${badge} <@${item.userId}> — \`${item.messageCount.toLocaleString()} msgs\``;
-        }).join('\n');
+            const badge = Symbols.ranks[idx + 1] || `\`#${idx + 1}\``;
+            return `${badge} <@${item.userId}>\n╰─› **${toSmallCaps('Count')}:** \` ${item.messageCount.toLocaleString()} msgs \``;
+        }).join('\n\n');
     }
 
     embed.addFields(
         {
-            name: '🎙️ Voice Leaders',
+            name: `🎙️ **${toSmallCaps('Voice Leaders')}**`,
             value: voiceText,
             inline: true
         },
         {
-            name: '💬 Chat Leaders',
+            name: `💬 **${toSmallCaps('Chat Leaders')}**`,
             value: messageText,
             inline: true
         }
     );
 
     embed.setFooter({
-        text: `${toSmallCaps('KitKat Telemetry')} • Switch tabs below`
+        text: `${toSmallCaps('KitKat Telemetry')} • Switch tabs using buttons below`
     });
     embed.setTimestamp();
 
@@ -206,6 +218,7 @@ function createLeaderboardButtons(activeCategory = 'overview') {
             .setStyle(activeCategory === 'messages' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setCustomId('panel_btn_delete')
+            .setLabel('Close')
             .setEmoji('🗑️')
             .setStyle(ButtonStyle.Danger)
     );

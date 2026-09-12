@@ -38,19 +38,23 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             })
             .setThumbnail(client.user.displayAvatarURL())
             .setDescription(
-                `### ${toSmallCaps('KitKat Core Protocol')}\n` +
-                `**Prefix:** \`${prefix}\` • **Status:** 🟢 \`Online\`\n` +
-                `A high-performance activity tracker recording voice hours, message telemetry, and guild leaderboards.\n\n` +
-                `**__${toSmallCaps('Command Matrix')}__**\n` +
-                `• </stats:0> or \`${prefix}stats [@user]\`\n` +
-                `  › View voice duration, message count, and server rank.\n` +
-                `• </leaderboard:0> or \`${prefix}lb\`\n` +
-                `  › Browse server leaderboards with interactive tabs.\n` +
-                `• </ping:0> or \`${prefix}ping\`\n` +
-                `  › Inspect WebSocket latency and host runtime.\n` +
-                `• </help:0> or \`${prefix}help\`\n` +
-                `  › Open this interactive component panel.\n\n` +
-                `*Use the navigation buttons or menu below to explore system details.*`
+                `### ⚡ **${toSmallCaps('KitKat Core Protocol')}**\n\n` +
+                `> 👑 **${toSmallCaps('Owner')}:** <@${ownerId}>\n` +
+                `> 🏷️ **${toSmallCaps('Prefix')}:** \` ${prefix} \`  •  🟢 **${toSmallCaps('Status')}:** \` Online \`\n` +
+                `> 📊 **${toSmallCaps('Engine')}:** \` Realtime Voice & Chat Telemetry \`\n\n` +
+                `*A high-performance telemetry engine recording voice activity, chat volume, and server rankings.*\n\n` +
+                `───────────────────────────────────\n\n` +
+                `### 📋 **${toSmallCaps('Command Matrix')}**\n\n` +
+                `▸ **\`/stats\`** ᴏʀ **\`${prefix}stats [@user]\`**\n` +
+                `╰─› *Inspect member voice hours, chat volume & rank dossier.*\n\n` +
+                `▸ **\`/leaderboard\`** ᴏʀ **\`${prefix}lb\`**\n` +
+                `╰─› *Interactive server rankings with realtime tabs for voice & text.*\n\n` +
+                `▸ **\`/ping\`** ᴏʀ **\`${prefix}ping\`**\n` +
+                `╰─› *Realtime WebSocket latency gauge, host memory footprint & uptime.*\n\n` +
+                `▸ **\`/help\`** ᴏʀ **\`${prefix}help\`**\n` +
+                `╰─› *Open this interactive component navigation panel.*\n\n` +
+                `───────────────────────────────────\n` +
+                `*Select a tab from the buttons or dropdown menu below to inspect details.*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Core Engine')} • ${toSmallCaps('v2.0 Panel')}`,
@@ -70,15 +74,17 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 iconURL: client.user.displayAvatarURL()
             })
             .setDescription(
-                `### ${toSmallCaps('System Diagnostics & Telemetry')}\n\n` +
-                `• **Gateway Ping:** \`${wsPing}\`\n` +
-                `• **Host Uptime:** \`${uptime}\`\n` +
-                `• **Memory Footprint:** \`${memoryMB} MB\`\n` +
-                `• **Database Cluster:** 🟢 \`MongoDB Atlas [Connected]\`\n` +
-                `• **Node.js Engine:** \`${process.version}\`\n` +
-                `• **Discord.js:** \`v14.17.3\`\n` +
-                `• **Guilds Monitored:** \`${guildCount.toLocaleString()}\`\n` +
-                `• **Total Members:** \`${totalMembers.toLocaleString()}\``
+                `### 📡 **${toSmallCaps('System Diagnostics & Telemetry')}**\n\n` +
+                `> ⚡ **${toSmallCaps('Gateway Ping')}:** \` ${wsPing} \`\n` +
+                `> 🌐 **${toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n\n` +
+                `> 💾 **${toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n` +
+                `> 🟢 **${toSmallCaps('Database Cluster')}:** \` MongoDB Atlas [Connected] \`\n\n` +
+                `> ⚙️ **${toSmallCaps('Node.js Engine')}:** \` ${process.version} \`\n` +
+                `> 📦 **${toSmallCaps('Discord.js')}:** \` v14.17.3 \`\n\n` +
+                `> 🛡️ **${toSmallCaps('Guilds Monitored')}:** \` ${guildCount.toLocaleString()} Servers \`\n` +
+                `> 👥 **${toSmallCaps('Total Members')}:** \` ${totalMembers.toLocaleString()} Users \`\n\n` +
+                `───────────────────────────────────\n` +
+                `*Host environment is operational and synchronizing background metrics.*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Telemetry')} • System Operational`
@@ -91,33 +97,35 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 iconURL: client.user.displayAvatarURL()
             })
             .setDescription(
-                `### ${toSmallCaps('Developer & Core Architecture')}\n\n` +
-                `• **Lead Developer:** Google DeepMind / Antigravity AGY\n` +
-                `• **Client System:** Clean Hexagonal Architecture (Node.js)\n` +
-                `• **Database Layer:** Mongoose ORM / MongoDB Atlas\n` +
-                `• **Keep-Alive Server:** Express Microservice with Self-Pinger\n` +
-                `• **Component Engine:** Discord V2 ActionRow & Select Panels\n` +
-                `• **Open Source:** [GitHub Repository](https://github.com/shadowkingop1906-ux/kitkat-activity-bot)`
+                `### 💻 **${toSmallCaps('Developer & Core Architecture')}**\n\n` +
+                `> 🛠️ **${toSmallCaps('Lead Architecture')}:** Google DeepMind / Antigravity AGY\n` +
+                `> 🏛️ **${toSmallCaps('Design Pattern')}:** Clean Hexagonal Architecture (Node.js)\n` +
+                `> 🗄️ **${toSmallCaps('Database Layer')}:** Mongoose ORM / MongoDB Atlas\n` +
+                `> 💓 **${toSmallCaps('Keep-Alive Service')}:** Express HTTP Microservice (8m Heartbeat)\n` +
+                `> 🎛️ **${toSmallCaps('Component Framework')}:** Discord Component V2 ActionRows & Selects\n` +
+                `> 📂 **${toSmallCaps('Open Source Repo')}:** [GitHub Repository](https://github.com/shadowkingop1906-ux/kitkat-activity-bot)\n\n` +
+                `───────────────────────────────────\n` +
+                `*Engineered for 24/7 uptime with automated session recovery.*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Dev Team')} • Enterprise Architecture`
             })
             .setTimestamp();
     } else if (activeTab === 'owner') {
-        // Matches the exact Orbis layout shown in the screenshot!
         embed
             .setAuthor({
-                name: `${toSmallCaps('KitKat Owner')}`,
+                name: `${toSmallCaps('KitKat Owner Directory')}`,
                 iconURL: ownerAvatar
             })
             .setThumbnail(ownerAvatar)
             .setDescription(
-                `👑 **${toSmallCaps('KitKat Owner')}**\n\n` +
-                `**Name:** ${ownerName}\n` +
-                `**User ID:** \`${ownerId}\`\n\n` +
-                `🛡️ **${toSmallCaps('Root Operator')}**\n` +
-                `**Status:** Primary Bot Administrator\n` +
-                `**Permissions:** Full Administrative & Cluster Access`
+                `### 👑 **${toSmallCaps('KitKat Owner')}**\n\n` +
+                `> 👑 **${toSmallCaps('Primary Owner')}:** ${ownerName}\n` +
+                `> 🆔 **${toSmallCaps('User ID')}:** \` ${ownerId} \`\n\n` +
+                `> 🛡️ **${toSmallCaps('Root Operator')}:** Verified\n` +
+                `> ⚡ **${toSmallCaps('Access Level')}:** \` Full Administrative & Cluster Access \`\n\n` +
+                `───────────────────────────────────\n` +
+                `*Authorized to execute root telemetry maintenance and cluster commands.*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Security')} • Verified Owner Badge`
@@ -130,11 +138,15 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
                 iconURL: client.user.displayAvatarURL()
             })
             .setDescription(
-                `### 🌟 ${toSmallCaps('Supporters & Contributors')}\n\n` +
-                `Special thanks to all server communities and members utilizing KitKat Activity Engine!\n\n` +
-                `• **Early Adopter:** All servers running \`k?help\`\n` +
-                `• **Supporter Perks:** Custom role assignments, exclusive badges, and priority telemetry logging.\n\n` +
-                `*Want to become a supporter? Click the Support button below to join our guild!*`
+                `### 🌟 **${toSmallCaps('Supporters & Contributors')}**\n\n` +
+                `> ✨ **${toSmallCaps('Server Communities')}:** Special thanks to all active guilds utilizing KitKat Engine!\n\n` +
+                `> 🎁 **${toSmallCaps('Supporter Perks')}:**\n` +
+                `> • Custom profile telemetry badge\n` +
+                `> • Priority database synchronization\n` +
+                `> • Verified supporter role in our community\n\n` +
+                `> 💬 **${toSmallCaps('Get Involved')}:** Click the Support button below to join the official guild!\n\n` +
+                `───────────────────────────────────\n` +
+                `*Thank you for supporting continuous development and hosting!*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Community')} • Supporter Tier`
@@ -150,7 +162,7 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
         .addOptions(
             new StringSelectMenuOptionBuilder()
                 .setLabel('Home Overview')
-                .setDescription('Commands matrix & general information')
+                .setDescription('Commands matrix & general protocol')
                 .setEmoji('⚙️')
                 .setValue('home')
                 .setDefault(activeTab === 'home'),
@@ -182,8 +194,8 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
 
     const rowSelect = new ActionRowBuilder().addComponents(selectMenu);
 
-    // 2. Primary Navigation Buttons (Matching Orbis Row 1)
-    const rowButtons = new ActionRowBuilder().addComponents(
+    // 2. Navigation Buttons (Row 1: 4 Category Buttons)
+    const rowButtonsTop = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId('panel_btn_home')
             .setLabel('Home')
@@ -203,19 +215,19 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             .setCustomId('panel_btn_owner')
             .setLabel('Owner')
             .setEmoji('👑')
-            .setStyle(activeTab === 'owner' ? ButtonStyle.Primary : ButtonStyle.Secondary),
+            .setStyle(activeTab === 'owner' ? ButtonStyle.Primary : ButtonStyle.Secondary)
+    );
+
+    // 3. Navigation Buttons (Row 2: 4 Action & Link Buttons)
+    const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${config.clientId}&permissions=8&scope=bot%20applications.commands`;
+    const supportUrl = 'https://discord.gg/';
+
+    const rowButtonsBottom = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId('panel_btn_supporter')
             .setLabel('Supporter')
             .setEmoji('🌟')
-            .setStyle(activeTab === 'supporter' ? ButtonStyle.Primary : ButtonStyle.Secondary)
-    );
-
-    // 3. Utility Buttons (Matching Orbis Row 2)
-    const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${config.clientId}&permissions=8&scope=bot%20applications.commands`;
-    const supportUrl = 'https://discord.gg/';
-
-    const rowUtility = new ActionRowBuilder().addComponents(
+            .setStyle(activeTab === 'supporter' ? ButtonStyle.Primary : ButtonStyle.Secondary),
         new ButtonBuilder()
             .setLabel('Support')
             .setEmoji('💬')
@@ -228,13 +240,14 @@ async function buildPanel(activeTab = 'home', client, interactionOrMessage) {
             .setURL(inviteUrl),
         new ButtonBuilder()
             .setCustomId('panel_btn_delete')
+            .setLabel('Close')
             .setEmoji('🗑️')
             .setStyle(ButtonStyle.Danger)
     );
 
     return {
         embeds: [embed],
-        components: [rowSelect, rowButtons, rowUtility]
+        components: [rowSelect, rowButtonsTop, rowButtonsBottom]
     };
 }
 

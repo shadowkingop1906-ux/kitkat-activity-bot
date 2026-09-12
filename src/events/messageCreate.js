@@ -46,12 +46,15 @@ module.exports = {
                     iconURL: message.client.user.displayAvatarURL()
                 })
                 .setDescription(
-                    `### 📡 ${toSmallCaps('Latency & Performance')}\n\n` +
-                    `• **Gateway Ping:** \`${wsPing >= 0 ? wsPing + 'ms' : 'Syncing...'}\`\n` +
-                    `• **Roundtrip:** \`${roundtrip}ms\`\n` +
-                    `• **Host Uptime:** \`${uptime}\`\n` +
-                    `• **Memory Usage:** \`${memoryMB} MB\`\n` +
-                    `• **Prefix:** \`${prefix}\``
+                    `### 📡 **${toSmallCaps('Latency & System Telemetry')}**\n\n` +
+                    `> ⚡ **${toSmallCaps('Gateway Latency')}:** \` ${wsPing >= 0 ? wsPing + 'ms' : 'Syncing...'} \`\n` +
+                    `> 🌐 **${toSmallCaps('Roundtrip Ping')}:** \` ${roundtrip}ms \`\n\n` +
+                    `> ⏱️ **${toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n` +
+                    `> 💾 **${toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n\n` +
+                    `> 🏷️ **${toSmallCaps('Prefix')}:** \` ${prefix} \`\n` +
+                    `> 🟢 **${toSmallCaps('Database Cluster')}:** \` MongoDB Atlas [Connected] \`\n\n` +
+                    `───────────────────────────────────\n` +
+                    `*Discord Gateway WebSocket connection is nominal.*`
                 )
                 .setFooter({
                     text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
@@ -66,6 +69,7 @@ module.exports = {
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
                     .setCustomId('panel_btn_delete')
+                    .setLabel('Close')
                     .setEmoji('🗑️')
                     .setStyle(ButtonStyle.Danger)
             );
@@ -94,18 +98,20 @@ module.exports = {
                 })
                 .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
                 .setDescription(
-                    `### ${toSmallCaps('Member Telemetry')}\n` +
-                    `**User:** <@${targetUser.id}> • \`${targetUser.id}\`\n` +
-                    `**Status:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting in Voice`' : '⚪ `Voice Disconnected`'}\n\n` +
+                    `### 📊 **${toSmallCaps('Operator Activity Dossier')}**\n\n` +
+                    `> 👤 **${toSmallCaps('Member')}:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
+                    `> 📡 **${toSmallCaps('Voice State')}:** ${stats.isCurrentlyInVoice ? '🟢 ` Transmitting in Voice `' : '⚪ ` Voice Standby / Idle `'}\n\n` +
+                    `───────────────────────────────────\n\n` +
                     `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
-                    `• **Time Spent:** \`${voiceTimeFormatted}\`\n` +
-                    `• **Server Rank:** ${vcRankBadge}\n\n` +
+                    `• **${toSmallCaps('Duration Recorded')}:** \` ${voiceTimeFormatted} \`\n` +
+                    `• **${toSmallCaps('Guild Rank')}:** ${vcRankBadge}\n\n` +
                     `💬 **${toSmallCaps('Chat Metrics')}**\n` +
-                    `• **Messages Sent:** \`${stats.messageCount.toLocaleString()} msgs\`\n` +
-                    `• **Server Rank:** ${msgRankBadge}\n\n` +
-                    `📅 **${toSmallCaps('Timeline')}**\n` +
-                    `• **Joined Guild:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:R>\n` +
-                    `• **Registered:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
+                    `• **${toSmallCaps('Messages Logged')}:** \` ${stats.messageCount.toLocaleString()} msgs \`\n` +
+                    `• **${toSmallCaps('Guild Rank')}:** ${msgRankBadge}\n\n` +
+                    `───────────────────────────────────\n\n` +
+                    `📅 **${toSmallCaps('Account Timeline')}**\n` +
+                    `• **${toSmallCaps('Joined Server')}:** <t:${Math.floor(targetMember.joinedTimestamp / 1000)}:R>\n` +
+                    `• **${toSmallCaps('Registered Discord')}:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
                 )
                 .setFooter({
                     text: `${toSmallCaps('KitKat Core Engine')} • ${message.guild.name}`
@@ -120,6 +126,7 @@ module.exports = {
                     .setStyle(ButtonStyle.Primary),
                 new ButtonBuilder()
                     .setCustomId('panel_btn_delete')
+                    .setLabel('Close')
                     .setEmoji('🗑️')
                     .setStyle(ButtonStyle.Danger)
             );

@@ -33,18 +33,20 @@ module.exports = {
             })
             .setThumbnail(targetUser.displayAvatarURL({ dynamic: true, size: 256 }))
             .setDescription(
-                `### ${toSmallCaps('Member Telemetry')}\n` +
-                `**User:** <@${targetUser.id}> • \`${targetUser.id}\`\n` +
-                `**Status:** ${stats.isCurrentlyInVoice ? '🟢 `Transmitting in Voice`' : '⚪ `Voice Disconnected`'}\n\n` +
+                `### 📊 **${toSmallCaps('Operator Activity Dossier')}**\n\n` +
+                `> 👤 **${toSmallCaps('Member')}:** <@${targetUser.id}> (\`${targetUser.id}\`)\n` +
+                `> 📡 **${toSmallCaps('Voice State')}:** ${stats.isCurrentlyInVoice ? '🟢 ` Transmitting in Voice `' : '⚪ ` Voice Standby / Idle `'}\n\n` +
+                `───────────────────────────────────\n\n` +
                 `🎙️ **${toSmallCaps('Voice Metrics')}**\n` +
-                `• **Time Spent:** \`${voiceTimeFormatted}\`\n` +
-                `• **Server Rank:** ${vcRankBadge}\n\n` +
+                `• **${toSmallCaps('Duration Recorded')}:** \` ${voiceTimeFormatted} \`\n` +
+                `• **${toSmallCaps('Guild Rank')}:** ${vcRankBadge}\n\n` +
                 `💬 **${toSmallCaps('Chat Metrics')}**\n` +
-                `• **Messages Sent:** \`${stats.messageCount.toLocaleString()} msgs\`\n` +
-                `• **Server Rank:** ${msgRankBadge}\n\n` +
-                `📅 **${toSmallCaps('Timeline')}**\n` +
-                `• **Joined Guild:** ${member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown'}\n` +
-                `• **Registered:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
+                `• **${toSmallCaps('Messages Logged')}:** \` ${stats.messageCount.toLocaleString()} msgs \`\n` +
+                `• **${toSmallCaps('Guild Rank')}:** ${msgRankBadge}\n\n` +
+                `───────────────────────────────────\n\n` +
+                `📅 **${toSmallCaps('Account Timeline')}**\n` +
+                `• **${toSmallCaps('Joined Server')}:** ${member ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown'}\n` +
+                `• **${toSmallCaps('Registered Discord')}:** <t:${Math.floor(targetUser.createdTimestamp / 1000)}:R>`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Core Engine')} • ${interaction.guild.name}`
@@ -59,6 +61,7 @@ module.exports = {
                 .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
                 .setCustomId('panel_btn_delete')
+                .setLabel('Close')
                 .setEmoji('🗑️')
                 .setStyle(ButtonStyle.Danger)
         );

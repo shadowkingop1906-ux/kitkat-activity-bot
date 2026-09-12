@@ -23,13 +23,15 @@ module.exports = {
                 iconURL: interaction.client.user.displayAvatarURL()
             })
             .setDescription(
-                `### 📡 ${toSmallCaps('Latency & Performance')}\n\n` +
-                `• **Gateway Ping:** \`${websocketPing >= 0 ? websocketPing + 'ms' : 'Syncing...'}\`\n` +
-                `• **Roundtrip:** \`${roundtripLatency}ms\`\n` +
-                `• **Host Uptime:** \`${uptime}\`\n` +
-                `• **Memory Usage:** \`${memoryMB} MB\`\n` +
-                `• **Database Cluster:** ${isDbOnline ? '🟢 `Operational`' : '🔴 `Degraded`'}\n` +
-                `• **Node.js Engine:** \`${process.version}\``
+                `### 📡 **${toSmallCaps('Latency & System Telemetry')}**\n\n` +
+                `> ⚡ **${toSmallCaps('Gateway Latency')}:** \` ${websocketPing >= 0 ? websocketPing + 'ms' : 'Syncing...'} \`\n` +
+                `> 🌐 **${toSmallCaps('Roundtrip Ping')}:** \` ${roundtripLatency}ms \`\n\n` +
+                `> ⏱️ **${toSmallCaps('Host Uptime')}:** \` ${uptime} \`\n` +
+                `> 💾 **${toSmallCaps('Memory Footprint')}:** \` ${memoryMB} MB \`\n\n` +
+                `> 🟢 **${toSmallCaps('Database Cluster')}:** \` ${isDbOnline ? 'MongoDB Atlas [Connected]' : 'Degraded [Offline]'} \`\n` +
+                `> ⚙️ **${toSmallCaps('Node.js Engine')}:** \` ${process.version} \`\n\n` +
+                `───────────────────────────────────\n` +
+                `*Discord Gateway WebSocket connection is nominal.*`
             )
             .setFooter({
                 text: `${toSmallCaps('KitKat Core Engine')} • Realtime Telemetry`
@@ -44,6 +46,7 @@ module.exports = {
                 .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
                 .setCustomId('panel_btn_delete')
+                .setLabel('Close')
                 .setEmoji('🗑️')
                 .setStyle(ButtonStyle.Danger)
         );
